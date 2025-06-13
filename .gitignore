@@ -1,0 +1,12 @@
+*~
+*.blend1
+*.orig
+.DS_Store
+.mypy_cache/
+.ruff_cache/
+/.idea/
+/.venv/
+/.vscode/
+/node_modules/
+/super-linter-output/
+__pycache__/
