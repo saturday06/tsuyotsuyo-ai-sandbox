@@ -29,19 +29,22 @@ mkdir -p "$HOME/visual-workspace/ubuntu-noble"
 cd "$HOME/visual-workspace/ubuntu-noble"
 port=13389
 
+docker --version
+if ! timeout 10 docker version; then
+  echo Something is wrong with docker >&2
+  exit 1
+fi
+
 if ! docker container inspect "$container_name" >/dev/null; then
   docker build \
     --tag "$tag_name" \
     --file "$dockerfile_path" \
     --progress plain \
     "$source_path"
-  docker run \
-    --gpus=all \
-    --detach \
-    --publish "127.0.0.1:$port:3389/tcp" \
-    --volume "$PWD:/workspace" \
-    --name "$container_name" \
-    "$tag_name"
+  publish="127.0.0.1:$port:3389/tcp"
+  volume="$PWD:/workspace"
+  docker run --detach --publish "$publish" --volume "$volume" --name "$container_name" "$tag_name" --gpus=all ||
+    docker run --detach --publish "$publish" --volume "$volume" --name "$container_name" "$tag_name"
 else
   docker stop "$container_name"
 fi

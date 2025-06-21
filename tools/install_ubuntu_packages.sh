@@ -20,7 +20,6 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   fonts-noto \
   git \
   git-lfs \
-  gnome-remote-desktop \
   gnupg \
   imagemagick \
   less \
@@ -30,15 +29,10 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   lxterminal \
   mesa-utils \
   moreutils \
-  mutter \
   netcat-openbsd \
   nkf \
   patchutils \
   procps \
-  python3-pygit2 \
-  python3-numpy \
-  python3-tqdm \
-  python3-typing-extensions \
   recordmydesktop \
   ruby \
   shellcheck \
@@ -47,16 +41,13 @@ DEBIAN_FRONTEND=noninteractive apt-get install \
   supervisor \
   xubuntu-desktop \
   xserver-xorg-input-all \
-  uchardet \
   unzip \
   vim \
   x11-xserver-utils \
   x11vnc \
   xorgxrdp \
-  xvfb \
   xrdp \
   xz-utils \
-  weston \
   wget \
   winpr-utils \
   zopfli \
