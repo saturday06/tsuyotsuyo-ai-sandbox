@@ -15,6 +15,7 @@
 *.py text eol=lf
 *.pyi text eol=lf
 *.rb text eol=lf
+*.rdp text working-tree-encoding=UTF-16LE-BOM eol=crlf
 *.toml text eol=lf
 *.ts text eol=lf
 *.txt text eol=lf

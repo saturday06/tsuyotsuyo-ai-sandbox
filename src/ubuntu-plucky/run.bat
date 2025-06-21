@@ -5,7 +5,7 @@ setlocal
 cd /d "%~dp0"
 
 set "port=13389"
-set "dockerfile_path=ubuntu-noble.dockerfile"
+set "name=ubuntu-plucky"
 
 set "arch_and_cd=%PROCESSOR_ARCHITECTURE%;%cd%"
 set "publish=127.0.0.1:%port%:3389/tcp"
@@ -35,14 +35,20 @@ set "print_arch_and_cd_hash=%print_arch_and_cd_hash% )"
 for /f "usebackq" %%i in (
   `powershell -Command "%print_arch_and_cd_hash%"`
 ) do set "arch_and_cd_hash=%%i"
+if "%arch_and_cd_hash%"=="" (
+  echo Failed to generate a unique hash for the current directory and architecture.
+  echo Please ensure that the current directory is valid and try again.
+  goto error
+)
 
-set "tag_name=ubuntu-noble-local-tag-%arch_and_cd_hash%"
-set "container_name=ubuntu-noble-local-container-%arch_and_cd_hash%"
+set "tag_name=%name%-local-tag-%arch_and_cd_hash%"
+set "working_tag_name=%name%-local-working-tag-%arch_and_cd_hash%"
+set "container_name=%name%-local-container-%arch_and_cd_hash%"
 
 rem Create a working folder in the WSL home directory.
 rem The reason for using WSL is that it provides better performance.
 for /f "usebackq" %%i in (
-  `wsl wslpath -a -w "$HOME/visual-workspace/ubuntu-noble"`
+  `wsl wslpath -a -w "$HOME/visual-workspace/%name%"`
 ) do set "workspace_path=%%i"
 md "%workspace_path%"
 set "volume=%workspace_path%:/workspace"
@@ -50,20 +56,60 @@ set "volume=%workspace_path%:/workspace"
 docker container inspect "%container_name%"
 if errorlevel 1 (
   rem If the container does not exist, build and start it.
-  docker build --tag "%tag_name%" --file "%dockerfile_path%" --progress plain .
+  docker build --tag "%working_tag_name%" --progress plain .
+  if errorlevel 1 (
+    echo Failed to build the Docker image.
+    goto error
+  )
+
+  docker image rm "%tag_name%"
+
+  docker image tag "%working_tag_name%" "%tag_name%"
+  if errorlevel 1 (
+    echo Failed to tag the Docker image.
+    goto error
+  )
+
+  docker image rm "%working_tag_name%"
+  if errorlevel 1 (
+    echo Failed to remove the working Docker image tag.
+    goto error
+  )
+
   docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
   || docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%"
+  if errorlevel 1 (
+    echo Failed to run the Docker container.
+    goto error
+  )
 ) else (
-  rem If the container already exists, restart the container and update the entrypoint script.
-  docker stop "%container_name%"
-  docker cp "%~dp0ubuntu-noble-entrypoint.sh" "%container_name%:/home/xyzzy/entrypoint.sh"
-  docker start "%container_name%"
+  powershell -Command "if ((Test-NetConnection '127.0.0.1' -Port $Env:port).TcpTestSucceeded) { exit 0 } else { exit 1 }"
+  if errorlevel 1 (
+    rem If the container already exists but the port is not open, restart the container.
+    docker stop "%container_name%"
+    if errorlevel 1 (
+      echo Failed to stop the Docker container.
+      goto error
+    )
+
+    docker cp "%~dp0entrypoint.sh" "%container_name%:/home/xyzzy/entrypoint.sh"
+    if errorlevel 1 (
+      echo Failed to copy the entrypoint script to the Docker container.
+      goto error
+    )
+
+    docker start "%container_name%"
+    if errorlevel 1 (
+      echo Failed to start the Docker container.
+      goto error
+    )
+  )
 )
 
 rem Wait until the remote desktop is started.
 set "wait_port="
 set "wait_port=%wait_port% for ($i=0; $i -lt 60; $i++) {"
-set "wait_port=%wait_port%   if ((Test-NetConnection -ComputerName '127.0.0.1' -Port $Env:port).TcpTestSucceeded) {"
+set "wait_port=%wait_port%   if ((Test-NetConnection '127.0.0.1' -Port $Env:port).TcpTestSucceeded) {"
 set "wait_port=%wait_port%     exit 0"
 set "wait_port=%wait_port%   }"
 set "wait_port=%wait_port%   Start-Sleep -Seconds 1"
@@ -75,6 +121,7 @@ if errorlevel 1 (
 )
 
 echo Remote desktop service has started in the Docker container. You can connect at "127.0.0.1:%port%".
+mstsc "%~dp0default.rdp"
 
 :error
 endlocal
