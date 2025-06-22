@@ -20,41 +20,6 @@ set "port=%2"
 set "arch_and_cd=%PROCESSOR_ARCHITECTURE%;%cd%"
 set "publish=127.0.0.1:%port%:3389/tcp"
 
-rem Check if Docker is installed and running
-docker --version >nul 2>&1
-if errorlevel 1 (
-  echo Docker is not installed.
-  echo Run `docker --version` for more info.
-  goto error
-)
-docker info >nul 2>&1
-if errorlevel 1 (
-  echo Docker is not running.
-  echo Run `docker info` for more info.
-  goto error
-)
-
-set "support_wsl_path=true"
-for /f "usebackq" %%i in (
-  `wsl wslpath -w /tmp/%name%`
-) do set "wsl_tmp_path=%%i"
-docker run --volume "%wsl_tmp_path%:/workspace" busybox true
-if errorlevel 1 (
-  set "support_wsl_path=false"
-  wsl docker --version >nul 2>&1
-  if errorlevel 1 (
-    echo Docker is not installed.
-    echo Run `wsl docker --version` for more info.
-    goto error
-  )
-  wsl docker info >nul 2>&1
-  if errorlevel 1 (
-    echo Docker is not running.
-    echo Run `wsl docker info` for more info.
-    goto error
-  )
-)
-
 rem Generate Docker tag and container names from the current directory and architecture.
 rem This is to avoid conflicts with other images and containers.
 set "print_arch_and_cd_hash="
@@ -77,17 +42,53 @@ if "%arch_and_cd_hash%"=="" (
 set "tag_name=%name%-local-tag-%arch_and_cd_hash%"
 set "working_tag_name=%name%-local-working-tag-%arch_and_cd_hash%"
 set "container_name=%name%-local-container-%arch_and_cd_hash%"
+set "busybox_container_name=%name%-busybox-container-%arch_and_cd_hash%"
+
+rem Check if Docker is installed and running
+docker --version >nul 2>&1
+if errorlevel 1 (
+  echo Docker is not installed.
+  echo Run `docker --version` for more info.
+  goto error
+)
+docker info >nul 2>&1
+if errorlevel 1 (
+  echo Docker is not running.
+  echo Run `docker info` for more info.
+  goto error
+)
+
+set "support_wsl_path=true"
+for /f "usebackq" %%i in (
+  `wsl wslpath -w /tmp/%name%`
+) do set "wsl_tmp_path=%%i"
+docker run --volume "%wsl_tmp_path%:/workspace" --name "%busybox_container_name%" busybox true
+if errorlevel 1 (
+  set "support_wsl_path=false"
+  wsl docker --version >nul 2>&1
+  if errorlevel 1 (
+    echo Docker is not installed.
+    echo Run `wsl docker --version` for more info.
+    goto error
+  )
+  wsl docker info >nul 2>&1
+  if errorlevel 1 (
+    echo Docker is not running.
+    echo Run `wsl docker info` for more info.
+    goto error
+  )
+)
 
 rem Create a working folder in the WSL home directory.
 rem The reason for using WSL is that it provides better performance.
 set "wsl_workspace_path=$HOME/visual-workspace/%name%"
 if "%support_wsl_path%"=="true" (
-  set "workspace_path=%wsl_workspace_path%"
-) else (
   for /f "usebackq" %%i in (
     `wsl wslpath -a -w "%wsl_workspace_path%"`
   ) do set "workspace_path=%%i"
   md "%workspace_path%"
+) else (
+  set "workspace_path=%wsl_workspace_path%"
 )
 set "volume=%workspace_path%:/workspace"
 
@@ -167,5 +168,10 @@ echo Remote desktop service has started in the Docker container. You can connect
 mstsc "%~dp0default.rdp" /v:"127.0.0.1:%port%"
 
 :error
+
+if "%busybox_container_name%" neq "" (
+  docker rm "%busybox_container_name%"
+)
+
 endlocal
 exit /b
