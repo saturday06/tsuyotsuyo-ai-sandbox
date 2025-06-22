@@ -23,13 +23,36 @@ set "publish=127.0.0.1:%port%:3389/tcp"
 rem Check if Docker is installed and running
 docker --version >nul 2>&1
 if errorlevel 1 (
-    echo Docker is not installed.
-    goto error
+  echo Docker is not installed.
+  echo Run `docker --version` for more info.
+  goto error
 )
 docker info >nul 2>&1
 if errorlevel 1 (
-    echo Docker is not running.
+  echo Docker is not running.
+  echo Run `docker info` for more info.
+  goto error
+)
+
+set "support_wsl_path=true"
+for /f "usebackq" %%i in (
+  `wsl wslpath -w /tmp/%name%`
+) do set "wsl_tmp_path=%%i"
+docker run --volume "%wsl_tmp_path%:/workspace" busybox true
+if errorlevel 1 (
+  set "support_wsl_path=false"
+  wsl docker --version >nul 2>&1
+  if errorlevel 1 (
+    echo Docker is not installed.
+    echo Run `wsl docker --version` for more info.
     goto error
+  )
+  wsl docker info >nul 2>&1
+  if errorlevel 1 (
+    echo Docker is not running.
+    echo Run `wsl docker info` for more info.
+    goto error
+  )
 )
 
 rem Generate Docker tag and container names from the current directory and architecture.
@@ -57,10 +80,15 @@ set "container_name=%name%-local-container-%arch_and_cd_hash%"
 
 rem Create a working folder in the WSL home directory.
 rem The reason for using WSL is that it provides better performance.
-for /f "usebackq" %%i in (
-  `wsl wslpath -a -w "$HOME/visual-workspace/%name%"`
-) do set "workspace_path=%%i"
-md "%workspace_path%"
+set "wsl_workspace_path=$HOME/visual-workspace/%name%"
+if "%support_wsl_path%"=="true" (
+  set "workspace_path=%wsl_workspace_path%"
+) else (
+  for /f "usebackq" %%i in (
+    `wsl wslpath -a -w "%wsl_workspace_path%"`
+  ) do set "workspace_path=%%i"
+  md "%workspace_path%"
+)
 set "volume=%workspace_path%:/workspace"
 
 docker container inspect "%container_name%"
@@ -86,8 +114,13 @@ if errorlevel 1 (
     goto error
   )
 
-  docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
-  || docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%"
+  if "%support_wsl_path%"=="true" (
+    docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
+    || docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" ^
+  ) else (
+    wsl docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
+    || wsl docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%"
+  )
   if errorlevel 1 (
     echo Failed to run the Docker container.
     goto error
