@@ -144,6 +144,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "netcat-openbsd=*" \
     "nkf=*" \
     "patchutils=*" \
+    "pavucontrol=*" \
     "procps=*" \
     "pipewire=*" \
     "pipewire-module-xrdp=*" \

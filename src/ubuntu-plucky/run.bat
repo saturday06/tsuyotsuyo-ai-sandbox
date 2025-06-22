@@ -4,8 +4,18 @@ setlocal
 
 cd /d "%~dp0"
 
-set "port=13389"
-set "name=ubuntu-plucky"
+set "usage=Usage: ubuntu-plucky\run.bat Docker-Container-and-Image-Base-Name Remote-Desktop-Server-Port"
+if "%~1" == "" (
+  echo %usage%
+  goto error
+)
+if "%~2" == "" (
+  echo %usage%
+  goto error
+)
+
+set "name=%1"
+set "port=%2"
 
 set "arch_and_cd=%PROCESSOR_ARCHITECTURE%;%cd%"
 set "publish=127.0.0.1:%port%:3389/tcp"
@@ -121,7 +131,7 @@ if errorlevel 1 (
 )
 
 echo Remote desktop service has started in the Docker container. You can connect at "127.0.0.1:%port%".
-mstsc "%~dp0default.rdp"
+mstsc "%~dp0default.rdp" /v:"127.0.0.1:%port%"
 
 :error
 endlocal
