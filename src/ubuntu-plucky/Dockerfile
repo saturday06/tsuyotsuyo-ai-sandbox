@@ -161,6 +161,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "unzip=*" \
     "vim=*" \
     "x11-xserver-utils=*" \
+    "xdotool=*" \
     "xfce4-pulseaudio-plugin=*" \
     "xfce4-terminal=*" \
     "xorg=*" \
