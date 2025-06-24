@@ -145,11 +145,10 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "nkf=*" \
     "patchutils=*" \
     "pavucontrol=*" \
+    "pavumeter=*" \
+    "paprefs=*" \
     "procps=*" \
-    "pipewire=*" \
-    "pipewire-module-xrdp=*" \
-    "pipewire-pulse=*" \
-    "wireplumber=*" \
+    "pulseaudio=*" \
     "recordmydesktop=*" \
     "ruby=*" \
     "shellcheck=*" \
@@ -176,6 +175,28 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
 INSTALL_OFFICIAL_PACKAGES
+
+RUN <<'INSTALL_PULSEAUDIO_MODULE_XRDP'
+  set -eu
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install \
+    "libpulse-dev=*" \
+    "build-essential=*" \
+    -y --no-install-recommends
+  apt-get dist-clean
+  rm -rf /var/lib/apt/lists/*
+
+  curl --fail --show-error --location --output pulseaudio-module-xrdp.tar.gz https://github.com/neutrinolabs/pulseaudio-module-xrdp/archive/refs/tags/v0.8.tar.gz
+  mkdir -p src/pulseaudio-module-xrdp
+  cd src/pulseaudio-module-xrdp
+  tar xf ../../pulseaudio-module-xrdp.tar.gz --strip-components=1
+  ./scripts/install_pulseaudio_sources_apt.sh -d "$HOME/src/pulseaudio"
+  ./bootstrap
+  ./configure PULSE_DIR="$HOME/src/pulseaudio"
+  make
+  make install
+  echo "autospawn=yes" > /run/pulseaudio-enable-autospawn
+INSTALL_PULSEAUDIO_MODULE_XRDP
 
 RUN <<'SETUP_USER'
   set -eu
