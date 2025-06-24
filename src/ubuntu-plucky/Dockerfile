@@ -145,7 +145,6 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "nkf=*" \
     "patchutils=*" \
     "pavucontrol=*" \
-    "pavumeter=*" \
     "paprefs=*" \
     "procps=*" \
     "pulseaudio=*" \
