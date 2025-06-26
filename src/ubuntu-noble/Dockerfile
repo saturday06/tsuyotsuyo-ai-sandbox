@@ -308,6 +308,7 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 xfce4-session
 XSESSION_SCRIPT
 
+  xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
 
   # https://docs.astral.sh/uv/getting-started/installation/
