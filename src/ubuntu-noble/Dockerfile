@@ -155,6 +155,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "fonts-noto=*" \
     "git-lfs=*" \
     "git=*" \
+    "gnome-keyring=*" \
     "gnupg=*" \
     "ibus-gtk=*" \
     "ibus-gtk3=*" \
