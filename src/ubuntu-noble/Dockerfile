@@ -300,6 +300,7 @@ export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
 # https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
 export DONT_PROMPT_WSL_INSTALL=true
+export BROWSER=/usr/bin/firefox
 export PATH="/usr/local/cuda/bin:$PATH"
 #export NO_AT_BRIDGE=1
 SHELL_PROFILE_SCRIPT
