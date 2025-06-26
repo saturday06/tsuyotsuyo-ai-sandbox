@@ -207,6 +207,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "sudo=*" \
     "supervisor=*" \
     "unzip=*" \
+    "upower=*" \
     "vim=*" \
     "wget=*" \
     "winpr-utils=*" \
