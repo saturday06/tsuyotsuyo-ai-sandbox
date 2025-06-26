@@ -302,7 +302,6 @@ export UV_LINK_MODE=copy
 export DONT_PROMPT_WSL_INSTALL=true
 export BROWSER=/usr/bin/firefox
 export PATH="/usr/local/cuda/bin:$PATH"
-#export NO_AT_BRIDGE=1
 SHELL_PROFILE_SCRIPT
 
   cat <<'XSESSION_SCRIPT' >~/.xsession
