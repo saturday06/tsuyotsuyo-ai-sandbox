@@ -21,6 +21,7 @@ RUN <<'INSTALL_BASE_PACKAGES'
     "lsb-release=*" \
     "openssl=*" \
     "pkg-config=*" \
+    "software-properties-common=*" \
     -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
@@ -49,15 +50,30 @@ RUN <<'INSTALL_VISUAL_STUDIO_CODE'
   rm -rf /var/lib/apt/lists/*
 INSTALL_VISUAL_STUDIO_CODE
 
-RUN <<'INSTALL_GOOGLE_CHROME_STABLE'
+# https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4
+RUN <<'INSTALL_POWERSHELL'
   set -eu
-  curl --fail --show-error --location --output google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  release=$(lsb_release --release --short)
+  curl --fail --show-error --location --remote-name "https://packages.microsoft.com/config/ubuntu/$release/packages-microsoft-prod.deb"
   apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install ./google-chrome.deb -y --no-install-recommends
-  rm google-chrome.deb
+  apt-get install ./packages-microsoft-prod.deb
+  rm packages-microsoft-prod.deb
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install powershell -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
-INSTALL_GOOGLE_CHROME_STABLE
+INSTALL_POWERSHELL
+
+# https://docs.unity3d.com/hub/manual/InstallHub.html#install-hub-linux
+RUN <<'INSTALL_UNITY_HUB'
+  set -eu
+  curl --fail --show-error --location https://hub.unity3d.com/linux/keys/public | gpg --dearmor > /usr/share/keyrings/Unity_Technologies_ApS.gpg
+  echo "deb [signed-by=/usr/share/keyrings/Unity_Technologies_ApS.gpg] https://hub.unity3d.com/linux/repos/deb stable main" > /etc/apt/sources.list.d/unityhub.list
+  apt update
+  apt-get install "unityhub=*" -y --no-install-recommends
+  apt-get dist-clean
+  rm -rf /var/lib/apt/lists/*
+INSTALL_UNITY_HUB
 
 # https://support.mozilla.org/en-US/kb/install-firefox-linux
 RUN <<'INSTALL_FIREFOX_ESR'
@@ -78,6 +94,16 @@ Pin-Priority: 1000
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
 INSTALL_FIREFOX_ESR
+
+RUN <<'INSTALL_GOOGLE_CHROME_STABLE'
+  set -eu
+  curl --fail --show-error --location --output google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install ./google-chrome.deb -y --no-install-recommends
+  rm google-chrome.deb
+  apt-get dist-clean
+  rm -rf /var/lib/apt/lists/*
+INSTALL_GOOGLE_CHROME_STABLE
 
 # https://developer.nvidia.com/cuda-downloads
 # https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#meta-packages
@@ -259,6 +285,9 @@ RUN <<'SETUP_USER'
   mkdir -p "$xdg_runtime_dir"
   chown xyzzy:xyzzy "$xdg_runtime_dir"
   chmod 700 "$xdg_runtime_dir"
+
+  xdg-mime default firefox.desktop x-scheme-handler/http
+  xdg-mime default firefox.desktop x-scheme-handler/https
 SETUP_USER
 
 USER xyzzy
@@ -273,6 +302,7 @@ export UV_LINK_MODE=copy
 # https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
 export DONT_PROMPT_WSL_INSTALL=true
 export PATH="/usr/local/cuda/bin:$PATH"
+export NO_AT_BRIDGE=1
 SHELL_PROFILE_SCRIPT
 
   cat <<'XSESSION_SCRIPT' >~/.xsession
