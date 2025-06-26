@@ -75,6 +75,16 @@ RUN <<'INSTALL_UNITY_HUB'
   rm -rf /var/lib/apt/lists/*
 INSTALL_UNITY_HUB
 
+RUN <<'INSTALL_GOOGLE_CHROME_STABLE'
+  set -eu
+  curl --fail --show-error --location --output google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  apt-get update
+  DEBIAN_FRONTEND=noninteractive apt-get install ./google-chrome.deb -y --no-install-recommends
+  rm google-chrome.deb
+  apt-get dist-clean
+  rm -rf /var/lib/apt/lists/*
+INSTALL_GOOGLE_CHROME_STABLE
+
 # https://support.mozilla.org/en-US/kb/install-firefox-linux
 RUN <<'INSTALL_FIREFOX_ESR'
   set -eu
@@ -93,17 +103,8 @@ Pin-Priority: 1000
   DEBIAN_FRONTEND=noninteractive apt-get install "firefox-esr=*" -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
+  update-alternatives --set x-www-browser /usr/bin/firefox-esr
 INSTALL_FIREFOX_ESR
-
-RUN <<'INSTALL_GOOGLE_CHROME_STABLE'
-  set -eu
-  curl --fail --show-error --location --output google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
-  apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install ./google-chrome.deb -y --no-install-recommends
-  rm google-chrome.deb
-  apt-get dist-clean
-  rm -rf /var/lib/apt/lists/*
-INSTALL_GOOGLE_CHROME_STABLE
 
 # https://developer.nvidia.com/cuda-downloads
 # https://docs.nvidia.com/cuda/cuda-installation-guide-linux/#meta-packages
@@ -300,7 +301,6 @@ export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
 # https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
 export DONT_PROMPT_WSL_INSTALL=true
-export BROWSER=/usr/bin/firefox
 export PATH="/usr/local/cuda/bin:$PATH"
 SHELL_PROFILE_SCRIPT
 
