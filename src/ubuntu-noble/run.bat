@@ -119,8 +119,8 @@ if errorlevel 1 (
     docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
     || docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" ^
   ) else (
-    wsl docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
-    || wsl docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%"
+    docker run --detach --publish "%publish%" --name "%container_name%" "%tag_name%" --gpus=all ^
+    || docker run --detach --publish "%publish%" ---name "%container_name%" "%tag_name%"
   )
   if errorlevel 1 (
     echo Failed to run the Docker container.

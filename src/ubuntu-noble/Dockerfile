@@ -104,6 +104,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "advancecomp=*" \
     "audacity=*" \
     "blender=*" \
+    "build-essential=*" \
     "check=*" \
     "cmake=*" \
     "curl=*" \
@@ -149,6 +150,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "libopenh264-dev=*" \
     "libopus-dev=*" \
     "libpam0g-dev=*" \
+    "libpulse-dev=*" \
     "libsm6=*" \
     "libssl-dev=*" \
     "libx11-dev=*" \
@@ -163,12 +165,12 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "nasm=*" \
     "netcat-openbsd=*" \
     "nkf=*" \
+    "paprefs=*" \
     "patchutils=*" \
     "pavucontrol=*" \
-    "pipewire-module-xrdp=*" \
-    "pipewire-pulse=*" \
-    "pipewire=*" \
     "procps=*" \
+    "pulseaudio-utils=*" \
+    "pulseaudio=*" \
     "recordmydesktop=*" \
     "ruby=*" \
     "shellcheck=*" \
@@ -179,7 +181,6 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "vim=*" \
     "wget=*" \
     "winpr-utils=*" \
-    "wireplumber=*" \
     "x11-utils=*" \
     "x11-xserver-utils=*" \
     "xdotool=*" \
@@ -232,6 +233,20 @@ RUN <<'INSTALL_XRDPXORG'
   make install
 INSTALL_XRDPXORG
 
+RUN <<'INSTALL_PULSEAUDIO_MODULE_XRDP'
+  set -eu
+  curl --fail --show-error --location --output pulseaudio-module-xrdp.tar.gz https://github.com/neutrinolabs/pulseaudio-module-xrdp/archive/refs/tags/v0.8.tar.gz
+  mkdir -p pulseaudio-module-xrdp
+  cd pulseaudio-module-xrdp
+  tar xf ../pulseaudio-module-xrdp.tar.gz --strip-components=1
+  ./scripts/install_pulseaudio_sources_apt.sh
+  ./bootstrap
+  ./configure "PULSE_DIR=$HOME/pulseaudio.src"
+  make
+  make install
+  echo "autospawn=yes" > /run/pulseaudio-enable-autospawn
+INSTALL_PULSEAUDIO_MODULE_XRDP
+
 RUN <<'SETUP_USER'
   set -eu
   useradd --create-home --user-group --shell /bin/bash xyzzy
@@ -260,9 +275,6 @@ SHELL_PROFILE_SCRIPT
 
   cat <<'XSESSION_SCRIPT' >~/.xsession
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-DISABLE_RTKIT=true PIPEWIRE_LOG_SYSTEMD=false pipewire &
-DISABLE_RTKIT=true PIPEWIRE_LOG_SYSTEMD=false pipewire-pulse &
-DISABLE_RTKIT=true PIPEWIRE_LOG_SYSTEMD=false wireplumber &
 xfce4-session
 XSESSION_SCRIPT
 
