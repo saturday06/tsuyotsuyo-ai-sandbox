@@ -115,13 +115,7 @@ if errorlevel 1 (
     goto error
   )
 
-  if "%support_wsl_path%"=="true" (
-    docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" --gpus=all ^
-    || docker run --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%" ^
-  ) else (
-    docker run --detach --publish "%publish%" --name "%container_name%" "%tag_name%" --gpus=all ^
-    || docker run --detach --publish "%publish%" ---name "%container_name%" "%tag_name%"
-  )
+  docker run --gpus=all --detach --publish "%publish%" --volume "%volume%" --name "%container_name%" "%tag_name%"
   if errorlevel 1 (
     echo Failed to run the Docker container.
     goto error
