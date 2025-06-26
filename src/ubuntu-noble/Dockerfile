@@ -217,6 +217,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "xserver-xorg-dev=*" \
     "xserver-xorg-input-all=*" \
     "xubuntu-desktop=*" \
+    "xvfb=*" \
     "xz-utils=*" \
     "zopfli=*" \
     "zsh=*" \
@@ -285,9 +286,6 @@ RUN <<'SETUP_USER'
   mkdir -p "$xdg_runtime_dir"
   chown xyzzy:xyzzy "$xdg_runtime_dir"
   chmod 700 "$xdg_runtime_dir"
-
-  xdg-mime default firefox.desktop x-scheme-handler/http
-  xdg-mime default firefox.desktop x-scheme-handler/https
 SETUP_USER
 
 USER xyzzy
@@ -309,6 +307,8 @@ SHELL_PROFILE_SCRIPT
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 xfce4-session
 XSESSION_SCRIPT
+
+  timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
 
   # https://docs.astral.sh/uv/getting-started/installation/
   curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
