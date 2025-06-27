@@ -171,6 +171,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "libavformat-dev=*" \
     "libepoxy-dev=*" \
     "libfreetype-dev=*" \
+    "libfuse2t64=*" \
     "libfuse3-dev=*" \
     "libgbm-dev=*" \
     "libimlib2-dev=*" \
