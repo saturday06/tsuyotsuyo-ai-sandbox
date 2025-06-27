@@ -4,7 +4,7 @@ setlocal
 
 cd /d "%~dp0"
 
-set "usage=Usage: ubuntu-plucky\run.bat Docker-Container-and-Image-Base-Name Remote-Desktop-Server-Port"
+set "usage=Usage: ubuntu-noble\run.bat Docker-Container-and-Image-Base-Name Remote-Desktop-Server-Port"
 if "%~1" == "" (
   echo %usage%
   goto error

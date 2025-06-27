@@ -20,6 +20,8 @@ RUN <<'INSTALL_BASE_PACKAGES'
     "gnupg=*" \
     "lsb-release=*" \
     "openssl=*" \
+    "pkg-config=*" \
+    "software-properties-common=*" \
     -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
@@ -47,6 +49,31 @@ RUN <<'INSTALL_VISUAL_STUDIO_CODE'
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
 INSTALL_VISUAL_STUDIO_CODE
+
+# https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4
+RUN <<'INSTALL_POWERSHELL'
+  set -eu
+  release=$(lsb_release --release --short)
+  curl --fail --show-error --location --remote-name "https://packages.microsoft.com/config/ubuntu/$release/packages-microsoft-prod.deb"
+  apt-get update
+  apt-get install ./packages-microsoft-prod.deb
+  rm packages-microsoft-prod.deb
+  apt-get update
+  # DEBIAN_FRONTEND=noninteractive apt-get install powershell -y --no-install-recommends
+  apt-get dist-clean
+  rm -rf /var/lib/apt/lists/*
+INSTALL_POWERSHELL
+
+# https://docs.unity3d.com/hub/manual/InstallHub.html#install-hub-linux
+RUN <<'INSTALL_UNITY_HUB'
+  set -eu
+  curl --fail --show-error --location https://hub.unity3d.com/linux/keys/public | gpg --dearmor > /usr/share/keyrings/Unity_Technologies_ApS.gpg
+  echo "deb [signed-by=/usr/share/keyrings/Unity_Technologies_ApS.gpg] https://hub.unity3d.com/linux/repos/deb stable main" > /etc/apt/sources.list.d/unityhub.list
+  apt update
+  apt-get install "unityhub=*" -y --no-install-recommends
+  apt-get dist-clean
+  rm -rf /var/lib/apt/lists/*
+INSTALL_UNITY_HUB
 
 RUN <<'INSTALL_GOOGLE_CHROME_STABLE'
   set -eu
@@ -76,6 +103,7 @@ Pin-Priority: 1000
   DEBIAN_FRONTEND=noninteractive apt-get install "firefox-esr=*" -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
+  update-alternatives --set x-www-browser /usr/bin/firefox-esr
 INSTALL_FIREFOX_ESR
 
 # https://developer.nvidia.com/cuda-downloads
@@ -101,19 +129,22 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
   apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install \
     "advancecomp=*" \
+    "apt-file=*" \
+    "audacity=*" \
     "blender=*" \
-    "curl=*" \
+    "build-essential=*" \
+    "check=*" \
     "cmake=*" \
-    "dbus=*" \
+    "curl=*" \
     "dbus-x11=*" \
-    "dotnet-sdk-8.0=*" \
+    "dbus=*" \
     "diffutils=*" \
+    "dotnet-sdk-8.0=*" \
     "emacs=*" \
     "ffmpeg=*" \
     "file=*" \
-    "fonts-noto=*" \
-    "fonts-noto-cjk=*" \
     "fonts-noto-cjk-extra=*" \
+    "fonts-noto-cjk=*" \
     "fonts-noto-color-emoji=*" \
     "fonts-noto-core=*" \
     "fonts-noto-extra=*" \
@@ -122,80 +153,85 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "fonts-noto-ui-core=*" \
     "fonts-noto-ui-extra=*" \
     "fonts-noto-unhinted=*" \
-    "git=*" \
+    "fonts-noto=*" \
     "git-lfs=*" \
+    "git=*" \
+    "gnome-keyring=*" \
+    "gnome-shell=*" \
+    "gnome-remote-desktop=*" \
     "gnupg=*" \
-    "ibus=*" \
     "ibus-gtk=*" \
     "ibus-gtk3=*" \
     "ibus-gtk4=*" \
     "ibus-mozc=*" \
+    "ibus=*" \
     "im-config=*" \
     "imagemagick=*" \
     "jq=*" \
     "less=*" \
+    "libavcodec-dev=*" \
+    "libavformat-dev=*" \
+    "libepoxy-dev=*" \
+    "libfreetype-dev=*" \
+    "libfuse2t64=*" \
+    "libfuse3-dev=*" \
+    "libgbm-dev=*" \
+    "libimlib2-dev=*" \
+    "libjpeg-turbo8-dev=*" \
+    "libmp3lame-dev=*" \
     "libopenh264-dev=*" \
+    "libopus-dev=*" \
+    "libpam0g-dev=*" \
     "libsm6=*" \
+    "libssl-dev=*" \
+    "libx11-dev=*" \
     "libx264-dev=*" \
+    "libxfixes-dev=*" \
     "libxi6=*" \
     "libxkbcommon0=*" \
+    "libxrandr-dev=*" \
+    "libxrandr-dev=*" \
     "mesa-utils=*" \
     "moreutils=*" \
+    "mutter=*" \
+    "nasm=*" \
     "netcat-openbsd=*" \
     "nkf=*" \
     "patchutils=*" \
     "pavucontrol=*" \
-    "paprefs=*" \
     "procps=*" \
-    "pulseaudio=*" \
+    "pipewire-module-xrdp=*" \
+    "pipewire-pulse=*" \
+    "pipewire=*" \
     "recordmydesktop=*" \
     "ruby=*" \
     "shellcheck=*" \
     "shfmt=*" \
     "sudo=*" \
     "supervisor=*" \
-    "xubuntu-desktop=*" \
-    "xserver-xorg-input-all=*" \
     "unzip=*" \
+    "upower=*" \
     "vim=*" \
-    "x11-xserver-utils=*" \
-    "xdotool=*" \
-    "xfce4-pulseaudio-plugin=*" \
-    "xfce4-terminal=*" \
-    "xorg=*" \
-    "xorgxrdp=*" \
-    "xrdp=*" \
-    "xz-utils=*" \
     "wget=*" \
     "winpr-utils=*" \
+    "wireplumber=*" \
+    "x11-utils=*" \
+    "x11-xserver-utils=*" \
+    "xdotool=*" \
+    "xfce4-terminal=*" \
+    "xorg=*" \
+    "xserver-xorg-dev=*" \
+    "xserver-xorg-input-all=*" \
+    "xubuntu-desktop=*" \
+    "xvfb=*" \
+    "xz-utils=*" \
     "zopfli=*" \
     "zsh=*" \
     -y --no-install-recommends
+
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
 INSTALL_OFFICIAL_PACKAGES
-
-RUN <<'INSTALL_PULSEAUDIO_MODULE_XRDP'
-  set -eu
-  apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install \
-    "libpulse-dev=*" \
-    "build-essential=*" \
-    -y --no-install-recommends
-  apt-get dist-clean
-  rm -rf /var/lib/apt/lists/*
-
-  curl --fail --show-error --location --output pulseaudio-module-xrdp.tar.gz https://github.com/neutrinolabs/pulseaudio-module-xrdp/archive/refs/tags/v0.8.tar.gz
-  mkdir -p src/pulseaudio-module-xrdp
-  cd src/pulseaudio-module-xrdp
-  tar xf ../../pulseaudio-module-xrdp.tar.gz --strip-components=1
-  ./scripts/install_pulseaudio_sources_apt.sh -d "$HOME/src/pulseaudio"
-  ./bootstrap
-  ./configure PULSE_DIR="$HOME/src/pulseaudio"
-  make
-  make install
-  echo "autospawn=yes" > /run/pulseaudio-enable-autospawn
-INSTALL_PULSEAUDIO_MODULE_XRDP
 
 RUN <<'SETUP_USER'
   set -eu
@@ -221,6 +257,7 @@ export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
 # https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
 export DONT_PROMPT_WSL_INSTALL=true
+export PATH="/usr/local/cuda/bin:$PATH"
 SHELL_PROFILE_SCRIPT
 
   cat <<'XSESSION_SCRIPT' >~/.xsession
@@ -230,6 +267,9 @@ DISABLE_RTKIT=true PIPEWIRE_LOG_SYSTEMD=false pipewire-pulse &
 DISABLE_RTKIT=true PIPEWIRE_LOG_SYSTEMD=false wireplumber &
 xfce4-session
 XSESSION_SCRIPT
+
+  xdg-settings set default-web-browser firefox-esr.desktop || true
+  timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
 
   # https://docs.astral.sh/uv/getting-started/installation/
   curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
