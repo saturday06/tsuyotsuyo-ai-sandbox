@@ -46,14 +46,14 @@ set "startup_script=%startup_script% & $mainPs1Path -Release $True; "
 
 where /q powershell.exe
 if %errorlevel% equ 0 (
-  powershell.exe -NoProfile -Command "%startup_script%"
+  powershell.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "%startup_script%"
   if !errorlevel! neq 0 pause
   goto :exit
 )
 
 where /q pwsh.exe
 if %errorlevel% equ 0 (
-  pwsh.exe -NoProfile -Command "%startup_script%"
+  pwsh.exe -NoProfile -ExecutionPolicy RemoteSigned -Command "%startup_script%"
   if !errorlevel! neq 0 pause
   goto :exit
 )

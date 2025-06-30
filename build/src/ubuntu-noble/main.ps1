@@ -132,7 +132,7 @@ Write-Host "- パスワード: xyzzy"
 Write-Host "/////////////////////////////////////////////////////////////////"
 Write-Host
 
-mstsc sandbox.rdp /v:"127.0.0.1:${rdpPort}"
+mstsc ai-sandbox.rdp /v:"127.0.0.1:${rdpPort}"
 if ($?) {
   Write-Host "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
 }
