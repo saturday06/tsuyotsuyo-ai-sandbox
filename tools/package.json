@@ -1,7 +1,0 @@
-{
-  "name": "internal",
-  "private": true,
-  "dependencies": {
-    "@novnc/novnc": "^1.6.0"
-  }
-}

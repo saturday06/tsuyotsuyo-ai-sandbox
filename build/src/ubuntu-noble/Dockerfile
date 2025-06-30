@@ -1,7 +1,4 @@
-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
-#
-# サーバーとして動作するわけではないのでHEALTHCHECKは不要
-# checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
+# SPDX-License-Identifier: MIT
 
 FROM ubuntu:noble
 
@@ -30,7 +27,7 @@ INSTALL_BASE_PACKAGES
 # https://github.com/cli/cli/blob/v2.65.0/docs/install_linux.md#debian-ubuntu-linux-raspberry-pi-os-apt
 RUN <<'INSTALL_GH'
   set -eu
-  curl --fail --show-error --location --output /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output /etc/apt/keyrings/githubcli-archive-keyring.gpg https://cli.github.com/packages/githubcli-archive-keyring.gpg
   chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg
   echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null
   apt-get update
@@ -42,7 +39,7 @@ INSTALL_GH
 # https://code.visualstudio.com/docs/setup/linux#_install-vs-code-on-linux
 RUN <<'INSTALL_VISUAL_STUDIO_CODE'
   set -eu
-  curl --fail --show-error --location --output code.deb https://go.microsoft.com/fwlink/?LinkID=760868
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output code.deb https://go.microsoft.com/fwlink/?LinkID=760868
   apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install ./code.deb -y --no-install-recommends
   rm code.deb
@@ -50,24 +47,10 @@ RUN <<'INSTALL_VISUAL_STUDIO_CODE'
   rm -rf /var/lib/apt/lists/*
 INSTALL_VISUAL_STUDIO_CODE
 
-# https://learn.microsoft.com/en-us/powershell/scripting/install/install-ubuntu?view=powershell-7.4
-RUN <<'INSTALL_POWERSHELL'
-  set -eu
-  release=$(lsb_release --release --short)
-  curl --fail --show-error --location --remote-name "https://packages.microsoft.com/config/ubuntu/$release/packages-microsoft-prod.deb"
-  apt-get update
-  apt-get install ./packages-microsoft-prod.deb
-  rm packages-microsoft-prod.deb
-  apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install powershell -y --no-install-recommends
-  apt-get dist-clean
-  rm -rf /var/lib/apt/lists/*
-INSTALL_POWERSHELL
-
 # https://docs.unity3d.com/hub/manual/InstallHub.html#install-hub-linux
 RUN <<'INSTALL_UNITY_HUB'
   set -eu
-  curl --fail --show-error --location https://hub.unity3d.com/linux/keys/public | gpg --dearmor > /usr/share/keyrings/Unity_Technologies_ApS.gpg
+  curl --fail --show-error --location --retry 5 --retry-all-errors https://hub.unity3d.com/linux/keys/public | gpg --dearmor > /usr/share/keyrings/Unity_Technologies_ApS.gpg
   echo "deb [signed-by=/usr/share/keyrings/Unity_Technologies_ApS.gpg] https://hub.unity3d.com/linux/repos/deb stable main" > /etc/apt/sources.list.d/unityhub.list
   apt update
   apt-get install "unityhub=*" -y --no-install-recommends
@@ -77,7 +60,7 @@ INSTALL_UNITY_HUB
 
 RUN <<'INSTALL_GOOGLE_CHROME_STABLE'
   set -eu
-  curl --fail --show-error --location --output google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
   apt-get update
   DEBIAN_FRONTEND=noninteractive apt-get install ./google-chrome.deb -y --no-install-recommends
   rm google-chrome.deb
@@ -90,7 +73,7 @@ RUN <<'INSTALL_FIREFOX_ESR'
   set -eu
   install -d -m 0700 ~/.gnupg
   install -d -m 0755 /etc/apt/keyrings
-  curl --fail --show-error --location https://packages.mozilla.org/apt/repo-signing-key.gpg --output /etc/apt/keyrings/packages.mozilla.org.asc
+  curl --fail --show-error --location --retry 5 --retry-all-errors https://packages.mozilla.org/apt/repo-signing-key.gpg --output /etc/apt/keyrings/packages.mozilla.org.asc
   gpg -n -q --import --import-options import-show /etc/apt/keyrings/packages.mozilla.org.asc \
     | awk '/pub/{getline; gsub(/^ +| +$/,""); if($0 == "35BAA0B33E9EB396F59CA838C0BA5CE6DC6315A3") print "\nThe key fingerprint matches ("$0").\n"; else print "\nVerification failed: the fingerprint ("$0") does not match the expected one.\n"}'
   echo "deb [signed-by=/etc/apt/keyrings/packages.mozilla.org.asc] https://packages.mozilla.org/apt mozilla main" >> /etc/apt/sources.list.d/mozilla.list
@@ -115,7 +98,7 @@ RUN <<'INSTALL_CUDA_TOOLKIT'
   else
     cuda_keyring_os=ubuntu
   fi
-  curl --fail --show-error --location --output cuda-keyring.deb "https://developer.download.nvidia.com/compute/cuda/repos/${cuda_keyring_os}/x86_64/cuda-keyring_1.1-1_all.deb"
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output cuda-keyring.deb "https://developer.download.nvidia.com/compute/cuda/repos/${cuda_keyring_os}/x86_64/cuda-keyring_1.1-1_all.deb"
   DEBIAN_FRONTEND=noninteractive apt-get install ./cuda-keyring.deb -y --no-install-recommends
   rm cuda-keyring.deb
   apt-get update
@@ -233,7 +216,8 @@ INSTALL_OFFICIAL_PACKAGES
 
 RUN <<'INSTALL_XRDP'
   set -eu
-  curl --fail --show-error --location --output xrdp.tar.gz https://github.com/neutrinolabs/xrdp/releases/download/v0.10.3/xrdp-0.10.3.tar.gz
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output xrdp.tar.gz https://github.com/neutrinolabs/xrdp/releases/download/v0.10.3/xrdp-0.10.3.tar.gz
+  test "$(shasum -a 512256 xrdp.tar.gz)" = "f5435113ee2e1faa483743f6a000dae579f667ff185a00a53f0bce31a05eb65c  xrdp.tar.gz"
   mkdir -p xrdp
   cd xrdp
   tar -xf ../xrdp.tar.gz --strip-components=1
@@ -254,20 +238,22 @@ RUN <<'INSTALL_XRDP'
   make install
 INSTALL_XRDP
 
-RUN <<'INSTALL_XRDPXORG'
+RUN <<'INSTALL_XORGXRDP'
   set -eu
-  curl --fail --show-error --location --output xrdpxorg.tar.gz https://github.com/neutrinolabs/xorgxrdp/releases/download/v0.10.4/xorgxrdp-0.10.4.tar.gz
-  mkdir -p xrdpxorg
-  cd xrdpxorg
-  tar -xf ../xrdpxorg.tar.gz --strip-components=1
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output xorgxrdp.tar.gz https://github.com/neutrinolabs/xorgxrdp/releases/download/v0.10.4/xorgxrdp-0.10.4.tar.gz
+  test "$(shasum -a 512256 xorgxrdp.tar.gz)" = "1d9981d591628c9a068f1a8b5522da04b9f59fa9c631560e6eb18c5fe8002b50  xorgxrdp.tar.gz"
+  mkdir -p xorgxrdp
+  cd xorgxrdp
+  tar -xf ../xorgxrdp.tar.gz --strip-components=1
   ./configure --enable-glamor
   make
   make install
-INSTALL_XRDPXORG
+INSTALL_XORGXRDP
 
 RUN <<'INSTALL_PULSEAUDIO_MODULE_XRDP'
   set -eu
-  curl --fail --show-error --location --output pulseaudio-module-xrdp.tar.gz https://github.com/neutrinolabs/pulseaudio-module-xrdp/archive/refs/tags/v0.8.tar.gz
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output pulseaudio-module-xrdp.tar.gz https://github.com/neutrinolabs/pulseaudio-module-xrdp/archive/refs/tags/v0.8.tar.gz
+  test "$(shasum -a 512256 pulseaudio-module-xrdp.tar.gz)" = "416cbf772f8642876f4b175350d443f8a97770bf37cad50c65518991590f970e  pulseaudio-module-xrdp.tar.gz"
   mkdir -p pulseaudio-module-xrdp
   cd pulseaudio-module-xrdp
   tar xf ../pulseaudio-module-xrdp.tar.gz --strip-components=1
@@ -315,10 +301,10 @@ XSESSION_SCRIPT
   timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
 
   # https://docs.astral.sh/uv/getting-started/installation/
-  curl --fail --show-error --location https://astral.sh/uv/install.sh | sh
+  curl --fail --show-error --location --retry 5 --retry-all-errors https://astral.sh/uv/install.sh | sh
 
   # https://github.com/Schniz/fnm/blob/v1.38.1/README.md?plain=1#L25
-  curl --fail --show-error --location https://fnm.vercel.app/install | bash
+  curl --fail --show-error --location --retry 5 --retry-all-errors https://fnm.vercel.app/install | bash
 SETUP_USER_LOCAL_ENVIRONMENT
 
 WORKDIR /workspace
