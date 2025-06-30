@@ -136,7 +136,7 @@ if ($?) {
   Write-Output "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
 }
 else {
-  Write-Warning "リモートデスクトップクライアントの起動に失敗しました。"
+  Write-Error "リモートデスクトップクライアントの起動に失敗しました。"
 }
 
 $closeTimeoutSeconds = 10
