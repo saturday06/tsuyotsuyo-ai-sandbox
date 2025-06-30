@@ -7,7 +7,7 @@ cd /d "%~dp0"
 echo.
 echo //////////////////////////////////////////////////
 echo.
-echo                     AI Sandbox
+echo               Tsuyotsuyo AI Sandbox
 echo.
 echo //////////////////////////////////////////////////
 echo.
