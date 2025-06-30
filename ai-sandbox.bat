@@ -64,6 +64,7 @@ echo Please install PowerShell.
 :exit
 endlocal
 exit /b
+
 ######################################## PowerShell ########################################
 # SPDX-License-Identifier: MIT
 
@@ -209,6 +210,7 @@ else {
 $closeTimeoutSeconds = 10
 Write-Output "このコンソールプログラムは、${closeTimeoutSeconds}秒後に終了します。"
 Start-Sleep -Seconds $closeTimeoutSeconds
+
 <# ##################################### Dockerfile ########################################
 # SPDX-License-Identifier: MIT
 #
@@ -527,6 +529,7 @@ WORKDIR /workspace
 COPY --chown=xyzzy:xyzzy --chmod=755 ./entrypoint.sh /home/xyzzy/entrypoint.sh
 ENTRYPOINT ["/bin/bash", "-lmic", "/home/xyzzy/entrypoint.sh 2>&1 | tee /home/xyzzy/entrypoint.log"]
 ######################################## Dockerfile ##################################### #>
+
 <# ##################################### entrypoint.sh ########################################
 #!/bin/bash
 # SPDX-License-Identifier: MIT
@@ -555,6 +558,7 @@ SUPERVISORD_CONF
 
 exec sudo /usr/bin/supervisord --nodaemon
 ######################################## entrypoint.sh ##################################### #>
+
 <# ##################################### ai-sandbox.rdp ########################################
 screen mode id:i:1
 use multimon:i:0
