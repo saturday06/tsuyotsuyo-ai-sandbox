@@ -210,6 +210,7 @@ else {
 $closeTimeoutSeconds = 10
 Write-Output "このコンソールプログラムは、${closeTimeoutSeconds}秒後に終了します。"
 Start-Sleep -Seconds $closeTimeoutSeconds
+exit 0
 
 <# ##################################### Dockerfile ########################################
 # SPDX-License-Identifier: MIT
