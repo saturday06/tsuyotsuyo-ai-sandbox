@@ -139,7 +139,7 @@ else {
   Write-Error "リモートデスクトップクライアントの起動に失敗しました。"
 }
 
-$closeTimeoutSeconds = 10
+$closeTimeoutSeconds = 20
 Write-Output "このコンソールプログラムは、${closeTimeoutSeconds}秒後に終了します。"
 Start-Sleep -Seconds $closeTimeoutSeconds
 exit 0
