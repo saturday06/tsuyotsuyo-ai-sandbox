@@ -65,7 +65,6 @@ echo Please install PowerShell.
 endlocal
 exit /b
 ######################################## PowerShell ########################################
-#!/usr/bin/env pwsh
 # SPDX-License-Identifier: MIT
 
 # このファイルは、PowerShell 2.0系でも動作するように記述する。
@@ -189,7 +188,7 @@ if (-not $rdpReady) {
   Write-Error """127.0.0.1:${rdpPort}""に接続できませんでした。"
 }
 
-Write-Output
+Write-Output ""
 Write-Output "/////////////////////////////////////////////////////////////////"
 Write-Output "Dockerコンテナ上でリモートデスクトップサービスが開始されました。"
 Write-Output "手動で接続する場合はRDPクライアントに次の情報を入力してください。"
@@ -197,7 +196,7 @@ Write-Output "- コンピューター: 127.0.0.1:${rdpPort}"
 Write-Output "- ユーザー名: xyzzy"
 Write-Output "- パスワード: xyzzy"
 Write-Output "/////////////////////////////////////////////////////////////////"
-Write-Output
+Write-Output ""
 
 mstsc ai-sandbox.rdp /v:"127.0.0.1:${rdpPort}"
 if ($?) {
@@ -212,6 +211,9 @@ Write-Output "このコンソールプログラムは、${closeTimeoutSeconds}�
 Start-Sleep -Seconds $closeTimeoutSeconds
 <# ##################################### Dockerfile ########################################
 # SPDX-License-Identifier: MIT
+#
+# サーバーとして動作するわけではないのでHEALTHCHECKは不要
+# checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
 
 FROM ubuntu:noble
 
@@ -265,7 +267,7 @@ RUN <<'INSTALL_UNITY_HUB'
   set -eu
   curl --fail --show-error --location --retry 5 --retry-all-errors https://hub.unity3d.com/linux/keys/public | gpg --dearmor > /usr/share/keyrings/Unity_Technologies_ApS.gpg
   echo "deb [signed-by=/usr/share/keyrings/Unity_Technologies_ApS.gpg] https://hub.unity3d.com/linux/repos/deb stable main" > /etc/apt/sources.list.d/unityhub.list
-  apt update
+  apt-get update
   apt-get install "unityhub=*" -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
