@@ -15,7 +15,7 @@ AIエージェントに完全な操作権限を与えながらも、セキュア
 
 ## 🚀 使い方
 
-1. 📥 [ai-sandbox.bat](https://github.com/saturday06/silver-visual-launcher/blob/main/ai-sandbox.bat) をダウンロード
+1. 📥 [ai-sandbox.bat](https://github.com/saturday06/tsuyotsuyo-ai-sandbox/blob/main/ai-sandbox.bat) をダウンロード
 2. ⚡ ダブルクリックするだけ！
 
 ## ✨ 特徴
@@ -26,7 +26,7 @@ AIエージェントに完全な操作権限を与えながらも、セキュア
 - 🛡️ 完全に隔離された安全な実行環境
 
 ### 🔍 **透明性とセキュリティ**
-- 📝 [ai-sandbox.bat](https://github.com/saturday06/silver-visual-launcher/blob/main/ai-sandbox.bat) は完全なプレーンテキスト
+- 📝 [ai-sandbox.bat](https://github.com/saturday06/tsuyotsuyo-ai-sandbox/blob/main/ai-sandbox.bat) は完全なプレーンテキスト
 - 🕵️ ユーザーによる安全性確認が超簡単
 - 🤖 心配な場合は、AIに動作解析を依頼可能
 
