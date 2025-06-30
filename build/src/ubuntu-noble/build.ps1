@@ -1,5 +1,4 @@
-#!/usr/bin/env pwsh
-# SPDX-License-Identifier: MIT
+﻿# SPDX-License-Identifier: MIT
 
 $ErrorActionPreference = "Stop"
 $PSNativeCommandUseErrorActionPreference = $true

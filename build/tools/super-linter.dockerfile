@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MIT OR GPL-3.0-or-later
+# SPDX-License-Identifier: MIT
 #
 # サーバーとして動作するわけではないのでHEALTHCHECKは不要
 # checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
@@ -14,13 +14,10 @@ ENV LOG_LEVEL=WARN
 # https://github.com/super-linter/super-linter/blob/v7.3.0/README.md?plain=1#L690
 ENV RUN_LOCAL=true
 
-# CHANGELOG.mdはrelease-pleaseによる自動生成ファイルのため除外
-ENV FILTER_REGEX_EXCLUDE="^/tmp/lint/CHANGELOG\.md$"
-
 ENV LINTER_RULES_PATH=/
 ENV DEFAULT_BRANCH=master
 ENV SAVE_SUPER_LINTER_SUMMARY=true
-ENV MARKDOWN_CONFIG_FILE=.markdownlint.yaml
+ENV MARKDOWN_CONFIG_FILE=build/.markdownlint.yaml
 ENV GITHUB_ACTIONS_CONFIG_FILE=.github/actionlint.yaml
 
 ENV VALIDATE_CSS=false

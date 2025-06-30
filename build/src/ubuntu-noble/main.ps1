@@ -1,5 +1,4 @@
-#!/usr/bin/env pwsh
-# SPDX-License-Identifier: MIT
+﻿# SPDX-License-Identifier: MIT
 
 # このファイルは、PowerShell 2.0系でも動作するように記述する。
 
@@ -19,11 +18,11 @@ $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
 $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
 $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox.rdp"
 
-Write-Host "* Docker Image Tag Name: ${tagName}"
-Write-Host "* Docker Container Name: ${containerName}"
-Write-Host "* Dockerfile Path: ${dockerfilePath}"
-Write-Host "* Dockerfile Entrypoint Path: ${entrypointShPath}"
-Write-Host "* RDP Configuration Path: ${aiSandboxRdpPath}"
+Write-Output "* Docker Image Tag Name: ${tagName}"
+Write-Output "* Docker Container Name: ${containerName}"
+Write-Output "* Dockerfile Path: ${dockerfilePath}"
+Write-Output "* Dockerfile Entrypoint Path: ${entrypointShPath}"
+Write-Output "* RDP Configuration Path: ${aiSandboxRdpPath}"
 
 if ($Release) {
   $scriptPath = $MyInvocation.MyCommand.Path
@@ -63,13 +62,13 @@ if ($Release) {
 }
 
 if (-not (Get-Command "docker" -ErrorAction SilentlyContinue)) {
-  Write-Host "*** dockerコマンドが見つかりませんでした。dockerをインストールしてください。 ***"
+  Write-Output "*** dockerコマンドが見つかりませんでした。dockerをインストールしてください。 ***"
   exit 1
 }
 
 docker info | Out-Null
 if (-not $?) {
-  Write-Host "*** ""docker info"" コマンドの実行に失敗しました。dockerが正常動作しているかを確認してください。 ***"
+  Write-Output "*** ""docker info"" コマンドの実行に失敗しました。dockerが正常動作しているかを確認してください。 ***"
   exit 1
 }
 
@@ -122,24 +121,24 @@ if (-not $rdpReady) {
   Write-Error """127.0.0.1:${rdpPort}""に接続できませんでした。"
 }
 
-Write-Host
-Write-Host "/////////////////////////////////////////////////////////////////"
-Write-Host "Dockerコンテナ上でリモートデスクトップサービスが開始されました。"
-Write-Host "手動で接続する場合はRDPクライアントに次の情報を入力してください。"
-Write-Host "- コンピューター: 127.0.0.1:${rdpPort}"
-Write-Host "- ユーザー名: xyzzy"
-Write-Host "- パスワード: xyzzy"
-Write-Host "/////////////////////////////////////////////////////////////////"
-Write-Host
+Write-Output ""
+Write-Output "/////////////////////////////////////////////////////////////////"
+Write-Output "Dockerコンテナ上でリモートデスクトップサービスが開始されました。"
+Write-Output "手動で接続する場合はRDPクライアントに次の情報を入力してください。"
+Write-Output "- コンピューター: 127.0.0.1:${rdpPort}"
+Write-Output "- ユーザー名: xyzzy"
+Write-Output "- パスワード: xyzzy"
+Write-Output "/////////////////////////////////////////////////////////////////"
+Write-Output ""
 
 mstsc ai-sandbox.rdp /v:"127.0.0.1:${rdpPort}"
 if ($?) {
-  Write-Host "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
+  Write-Output "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
 }
 else {
   Write-Warning "リモートデスクトップクライアントの起動に失敗しました。"
 }
 
 $closeTimeoutSeconds = 10
-Write-Host "このコンソールプログラムは、${closeTimeoutSeconds}秒後に終了します。"
+Write-Output "このコンソールプログラムは、${closeTimeoutSeconds}秒後に終了します。"
 Start-Sleep -Seconds $closeTimeoutSeconds

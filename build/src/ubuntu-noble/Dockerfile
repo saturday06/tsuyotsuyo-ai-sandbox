@@ -1,4 +1,7 @@
 # SPDX-License-Identifier: MIT
+#
+# サーバーとして動作するわけではないのでHEALTHCHECKは不要
+# checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
 
 FROM ubuntu:noble
 
@@ -52,7 +55,7 @@ RUN <<'INSTALL_UNITY_HUB'
   set -eu
   curl --fail --show-error --location --retry 5 --retry-all-errors https://hub.unity3d.com/linux/keys/public | gpg --dearmor > /usr/share/keyrings/Unity_Technologies_ApS.gpg
   echo "deb [signed-by=/usr/share/keyrings/Unity_Technologies_ApS.gpg] https://hub.unity3d.com/linux/repos/deb stable main" > /etc/apt/sources.list.d/unityhub.list
-  apt update
+  apt-get update
   apt-get install "unityhub=*" -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
