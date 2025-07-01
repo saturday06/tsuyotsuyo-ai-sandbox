@@ -2,7 +2,10 @@
 
 # このファイルは、PowerShell 2.0系でも動作するように記述する。
 
-Param([bool]$Release = $false)
+Param(
+  [bool]$Release = $False,
+  [bool]$Rebuild = $False
+)
 
 $ErrorActionPreference = "Stop"
 
@@ -70,6 +73,12 @@ docker info | Out-Null
 if (-not $?) {
   Write-Output "*** ""docker info"" コマンドの実行に失敗しました。dockerが正常動作しているかを確認してください。 ***"
   exit 1
+}
+
+if ($Rebuild) {
+  docker container rm -f $containerName
+  docker image rm -f $tagName
+  docker image rm -f $workingTagName
 }
 
 docker container inspect $containerName | Out-Null
