@@ -152,6 +152,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "im-config=*" \
     "imagemagick=*" \
     "jq=*" \
+    "language-pack-ja=*" \
     "less=*" \
     "libavcodec-dev=*" \
     "libavformat-dev=*" \
