@@ -116,33 +116,35 @@ namespace TsuyotsuyoAiSandbox
                 hashBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(seedString));
             }
 
-            // ハッシュ値の最初の16バイトから4つのuintを抽出 (XorShiftの内部状態)
-            uint x = BitConverter.ToUInt32(hashBytes, 0);
-            uint y = BitConverter.ToUInt32(hashBytes, 4);
-            uint z = BitConverter.ToUInt32(hashBytes, 8);
-            uint w = BitConverter.ToUInt32(hashBytes, 12);
+            // ハッシュ値の最初の32バイトから4つのulongを抽出 (XorShift256+の内部状態)
+            // SHA256は32バイト出力するので、そのまま4つのulongに変換できる
+            ulong s0 = BitConverter.ToUInt64(hashBytes, 0);
+            ulong s1 = BitConverter.ToUInt64(hashBytes, 8);
+            ulong s2 = BitConverter.ToUInt64(hashBytes, 16);
+            ulong s3 = BitConverter.ToUInt64(hashBytes, 24);
 
             // すべての状態変数が0になるのを避ける (ハッシュを使っているため極めて稀だが念のため)
-            if (x == 0 && y == 0 && z == 0 && w == 0)
+            if (s0 == 0 && s1 == 0 && s2 == 0 && s3 == 0)
             {
-                x = 1; // どれか1つは0以外にする
+                s0 = 1; // どれか1つは0以外にする
             }
 
-            // XorShiftアルゴリズムを複数回ループして状態を更新し、その都度wを次の乱数として使う
-            // ループの最後のwが最終的な生成値となる
+            // XorShift256+アルゴリズムを複数回ループして状態を更新
             for (int i = 0; i < 100; i++)
             {
-                uint t = x ^ (x << 11);
-                x = y;
-                y = z;
-                z = w;
-                w = (w ^ (w >> 19)) ^ (t ^ (t >> 8));
+                ulong t = s1 << 17; // a
+                s2 ^= s0;
+                s3 ^= s1;
+                s1 ^= s2;
+                s0 ^= s3;
+                s2 ^= t;
+                s3 = (s3 << 45) | (s3 >> (64 - 45)); // rotl(45)
             }
-            uint generatedValue = w;
+            ulong generatedValue = s0;
 
             // 範囲に変換
             uint range = (uint)(maxValue - minValue);
-            return (int)(minValue + (generatedValue % range));
+            return minValue + (int)(generatedValue % range);
         }
     }
 }
