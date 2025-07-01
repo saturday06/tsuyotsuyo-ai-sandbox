@@ -78,11 +78,24 @@ $ErrorActionPreference = "Stop"
 
 Add-Type -TypeDefinition @"
 using System;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace TsuyotsuyoAiSandbox
 {
+    public static class ShcoreDll
+    {
+        [DllImport("Shcore.dll")]
+        public static extern int GetScaleFactorForMonitor(IntPtr hMon, out uint pScale);
+    }
+
+    public static class User32Dll
+    {
+        [DllImport("User32.dll")]
+        public static extern IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
+    }
+
     public static class DeterministicRandom
     {
         public static int Get(string seedString, int minValue, int maxValue)
@@ -209,9 +222,17 @@ if ($Rebuild) {
 
 docker container inspect $containerName | Out-Null
 if (-not $?) {
-  docker build --tag $workingTagName --progress plain .
+  $hidpiScaleFactorPercentage = 100
+  try {
+    $monitorHandle = [TsuyotsuyoAiSandbox.User32Dll]::MonitorFromWindow([IntPtr]::Zero, 1)
+    [TsuyotsuyoAiSandbox.ShcoreDll]::GetScaleFactorForMonitor($monitorHandle, [ref]$hidpiScaleFactorPercentage)
+  }
+  catch [System.DllNotFoundException] {
+  }
+  $hidpiScaleFactor = $hidpiScaleFactorPercentage / 100.0
+  docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor
   if (-not $?) {
-    Write-Error """docker build --tag $workingTagName --progress plain ."" コマンドの実行に失敗しました"
+    Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor"" コマンドの実行に失敗しました"
   }
   docker image rm $tagName
   docker image tag $workingTagName $tagName
@@ -286,6 +307,7 @@ exit 0
 # checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
 
 FROM ubuntu:noble
+ARG hidpi_scale_factor=1
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -586,6 +608,7 @@ XSESSION_SCRIPT
 
   xvfb-run -a gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp']"
   xvfb-run -a gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
+  xvfb-run -a gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true

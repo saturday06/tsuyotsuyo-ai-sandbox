@@ -4,6 +4,7 @@
 # checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
 
 FROM ubuntu:noble
+ARG hidpi_scale_factor=1
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -304,6 +305,7 @@ XSESSION_SCRIPT
 
   xvfb-run -a gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp']"
   xvfb-run -a gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
+  xvfb-run -a gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
