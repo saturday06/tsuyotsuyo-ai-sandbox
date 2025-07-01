@@ -12,7 +12,6 @@ echo.
 echo //////////////////////////////////////////////////
 echo.
 
-set "arch_and_cd=%PROCESSOR_ARCHITECTURE%;%cd%"
 set "bat_path=%~f0"
 
 set PSModulePath=
@@ -24,7 +23,7 @@ set "startup_script=%startup_script%   ([System.IO.Path]::GetTempPath()) "
 set "startup_script=%startup_script%   ( "
 set "startup_script=%startup_script%     'ai-sandbox-' + [System.BitConverter]::ToString( "
 set "startup_script=%startup_script%       (New-Object System.Security.Cryptography.SHA256Managed).ComputeHash( "
-set "startup_script=%startup_script%         [System.Text.Encoding]::UTF8.GetBytes($Env:arch_and_cd) "
+set "startup_script=%startup_script%         [System.Text.Encoding]::UTF8.GetBytes($Env::PROCESSOR_ARCHITECTURE + ';' + $Env:bat_path) "
 set "startup_script=%startup_script%       ) "
 set "startup_script=%startup_script%     ).ToLower().Replace('-', '') "
 set "startup_script=%startup_script%   ) "
