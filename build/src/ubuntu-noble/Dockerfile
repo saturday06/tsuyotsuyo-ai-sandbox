@@ -178,6 +178,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "libxrandr-dev=*" \
     "mesa-utils=*" \
     "moreutils=*" \
+    "mozc-utils-gui=*" \
     "nasm=*" \
     "netcat-openbsd=*" \
     "nkf=*" \
@@ -299,6 +300,9 @@ SHELL_PROFILE_SCRIPT
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 xfce4-session
 XSESSION_SCRIPT
+
+  xvfb-run -a gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp']"
+  xvfb-run -a gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
