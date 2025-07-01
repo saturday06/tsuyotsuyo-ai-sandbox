@@ -188,7 +188,7 @@ function Start-AiSandbox {
   Write-Output "* RDP Port Number: ${rdpPort}"
 
   if ($Release) {
-    $utf8NoBom = New-Object System.Text.UTF8Encoding $false
+    $utf8NoBom = New-Object System.Text.UTF8Encoding $False
     $dockerfileMatch = [regex]::Match(
       (Get-Content $scriptPath -Raw -Encoding UTF8),
       "(?s)<# #{37} Dockerfile #{40}\r\n(.+?)#{40} Dockerfile #{37} #>"
@@ -279,10 +279,10 @@ function Start-AiSandbox {
     }
   }
 
-  $rdpReady = $false
+  $rdpReady = $False
   for ($i = 0; $i -lt 10; $i++) {
     if ((Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
-      $rdpReady = $true
+      $rdpReady = $True
       break
     }
     Start-Sleep -Seconds 1
