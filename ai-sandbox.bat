@@ -684,8 +684,8 @@ exec sudo /usr/bin/supervisord --nodaemon
 <# ##################################### ai-sandbox.rdp ########################################
 screen mode id:i:1
 use multimon:i:0
-desktopwidth:i:1920
-desktopheight:i:1080
+desktopwidth:i:1800
+desktopheight:i:960
 session bpp:i:32
 winposstr:s:0,1,632,309,3427,1924
 compression:i:1
