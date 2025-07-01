@@ -271,6 +271,16 @@ RUN <<'INSTALL_PULSEAUDIO_MODULE_XRDP'
   echo "autospawn=yes" > /run/pulseaudio-enable-autospawn
 INSTALL_PULSEAUDIO_MODULE_XRDP
 
+RUN <<'SETUP_SYSTEM_LOCALE'
+  set -eu
+  locale-gen "ja_JP.UTF-8"
+  cat <<'DEFAULT_LOCALE' >/etc/default/locale
+LANG=ja_JP.UTF-8
+LANGUAGE=ja_JP:ja
+LC_ALL=ja_JP.UTF-8
+DEFAULT_LOCALE
+SETUP_SYSTEM_LOCALE
+
 RUN <<'SETUP_USER'
   set -eu
   useradd --create-home --user-group --shell /bin/bash xyzzy
