@@ -125,6 +125,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "curl=*" \
     "dbus-x11=*" \
     "dbus=*" \
+    "dconf-editor=*" \
     "diffutils=*" \
     "dotnet-sdk-8.0=*" \
     "emacs=*" \
@@ -152,6 +153,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "ibus=*" \
     "im-config=*" \
     "imagemagick=*" \
+    "iproute2=*" \
     "jq=*" \
     "language-pack-ja=*" \
     "less=*" \
@@ -171,6 +173,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "libpulse-dev=*" \
     "libsm6=*" \
     "libssl-dev=*" \
+    "libtesseract-dev=*" \
     "libx11-dev=*" \
     "libx264-dev=*" \
     "libxfixes-dev=*" \
@@ -178,10 +181,12 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "libxkbcommon0=*" \
     "libxrandr-dev=*" \
     "libxrandr-dev=*" \
+    "lsof=*" \
     "mesa-utils=*" \
     "moreutils=*" \
     "mozc-utils-gui=*" \
     "nasm=*" \
+    "net-tools=*" \
     "netcat-openbsd=*" \
     "nkf=*" \
     "paprefs=*" \
@@ -194,8 +199,10 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "ruby=*" \
     "shellcheck=*" \
     "shfmt=*" \
+    "speech-dispatcher=*" \
     "sudo=*" \
     "supervisor=*" \
+    "tesseract-ocr=*" \
     "unzip=*" \
     "upower=*" \
     "vim=*" \
