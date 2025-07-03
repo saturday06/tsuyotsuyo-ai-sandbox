@@ -320,12 +320,12 @@ export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 xfce4-session
 XSESSION_SCRIPT
 
-  xvfb-run -a gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp']"
-  xvfb-run -a gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
-  xvfb-run -a gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp']"
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
+  xvfb-run --auto-servernum gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
-  timeout --signal=HUP 2 xvfb-run -a firefox --private-window --setDefaultBrowser || true
+  timeout --signal=HUP 2 xvfb-run --auto-servernum firefox --private-window --setDefaultBrowser || true
 
   # https://docs.astral.sh/uv/getting-started/installation/
   curl --fail --show-error --location --retry 5 --retry-all-errors https://astral.sh/uv/install.sh | sh
