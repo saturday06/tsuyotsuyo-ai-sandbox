@@ -177,7 +177,7 @@ function Start-AiSandbox {
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
   $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox.rdp"
   $scriptPath = $script:MyInvocation.MyCommand.Path
-  $rdpPort = Get-DeterministicRandom -SeedString $scriptPath -MinValue 49152 -MaxValue 65536
+  $rdpPort = Get-DeterministicRandom -SeedString $scriptPath -MinValue 49152 -MaxValue 59312 # Rancher Desktop doesn't support `port >= 59312`.
 
   Write-Output "* Docker Image Tag Name: ${tagName}"
   Write-Output "* Docker Container Name: ${containerName}"
