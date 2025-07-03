@@ -573,6 +573,7 @@ RUN <<'INSTALL_XRDP'
     --with-freetype2=yes
   make
   make install
+  echo '(ibus version && ibus restart) || true' >>/etc/xrdp/reconnectwm.sh
 INSTALL_XRDP
 
 RUN <<'INSTALL_XORGXRDP'
@@ -641,10 +642,26 @@ SHELL_PROFILE_SCRIPT
 
   cat <<'XSESSION_SCRIPT' >~/.xsession
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+(ibus version && ibus restart) || true
 xfce4-session
 XSESSION_SCRIPT
 
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp']"
+  mkdir -p ~/.config/mozc/
+  cat <<'MOZC_IBUS_CONFIG' >~/.config/mozc/ibus_config.textproto
+engines {
+  name : "mozc-jp"
+  longname : "Mozc"
+  layout : "default"
+  layout_variant : ""
+  layout_option : ""
+  rank : 80
+}
+active_on_launch: True
+MOZC_IBUS_CONFIG
+
+  xvfb-run --auto-servernum xfconf-query --channel keyboard-layout --property /Default/XkbDisable --type bool --set false --create
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
   xvfb-run --auto-servernum gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
