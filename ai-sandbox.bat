@@ -267,7 +267,12 @@ function Start-AiSandbox {
   }
   else {
     docker cp "entrypoint.sh" "${containerName}:/home/xyzzy/entrypoint.sh"
+    # TODO: `docker info` でRDPのポートの変更検知をする。
+    # 変更されている場合はdocker commitして再起動する。
+
+    # RDPのポートに接続できない場合、再起動する。
     if (-not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
+      Write-Output "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
       docker stop $containerName
       if (-not $?) {
         Write-Error """docker stop $containerName"" コマンドの実行に失敗しました"
