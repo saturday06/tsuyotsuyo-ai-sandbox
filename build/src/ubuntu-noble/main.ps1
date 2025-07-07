@@ -4,7 +4,8 @@
 
 param(
   [bool]$Release = $False,
-  [bool]$Rebuild = $False
+  [bool]$Rebuild = $False,
+  [string]$ConfigPath = (Join-Path $PSScriptRoot ai-sandbox.json)
 )
 
 $ErrorActionPreference = "Stop"
@@ -97,21 +98,56 @@ function Get-HidpiScaleFactor {
 function Start-AiSandbox {
   param(
     [bool]$Release,
-    [bool]$Rebuild
+    [bool]$Rebuild,
+    [string]$ConfigPath
   )
 
   $baseName = "ubuntu-noble"
   $directoryName = (Split-Path -Path $PSScriptRoot -Leaf)
+  $scriptPath = $script:MyInvocation.MyCommand.Path
 
-  $tagName = "${baseName}-${directoryName}-local-tag"
+  $config = @{}
+  if (Test-Path $ConfigPath) {
+    $config = (Get-Content $ConfigPath | ConvertFrom-Json -AsHashtable)
+    if (-not $config) {
+      $config = @{}
+    }
+  }
+
+  $tagAndContainerNamePattern = "^[a-zA-Z0-9]([-a-zA-Z0-9]*[a-zA-Z0-9])?$"
+
+  $configUpdated = $False
+  $tagName = $config["tag_name"]
+  if (-not ($tagName -is [string] -and ($tagName -match $tagAndContainerNamePattern))) {
+    $tagName = "${baseName}-${directoryName}-local-tag"
+    $config["tag_name"] = $tagName
+    $configUpdated = $True
+  }
+
+  $containerName = $config["container_name"]
+  if (-not ($containerName -is [string] -and $containerName -match $tagAndContainerNamePattern)) {
+    $containerName = "${baseName}-${directoryName}-local-container"
+    $config["container_name"] = $containerName
+    $configUpdated = $True
+  }
+
+  $rdpPort = $config["rdp_port"]
+  if (-not($rdpPort -is [int] -and 0 -lt $rdpPort -and $rdpPort -lt 65536)) {
+    $rdpPort = Get-DeterministicRandom -SeedString $scriptPath -MinValue 49152 -MaxValue 59312 # Rancher Desktop doesn't support `port >= 59312`.
+    $config["rdp_port"] = $rdpPort
+    $configUpdated = $True
+  }
+
+  if ($configUpdated) {
+    Set-Content $ConfigPath (ConvertTo-Json $config)
+  }
+
   $workingTagName = "${baseName}-${directoryName}-local-working-tag"
-  $containerName = "${baseName}-${directoryName}-local-container"
   $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
   $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox.rdp"
-  $scriptPath = $script:MyInvocation.MyCommand.Path
-  $rdpPort = Get-DeterministicRandom -SeedString $scriptPath -MinValue 49152 -MaxValue 59312 # Rancher Desktop doesn't support `port >= 59312`.
 
+  Write-Output "* Config Path: ${ConfigPath}"
   Write-Output "* Docker Image Tag Name: ${tagName}"
   Write-Output "* Docker Container Name: ${containerName}"
   Write-Output "* Dockerfile Path: ${dockerfilePath}"
@@ -173,8 +209,53 @@ function Start-AiSandbox {
     docker image rm -f $workingTagName
   }
 
-  docker container inspect $containerName | Out-Null
-  if (-not $?) {
+  $containerInspectResults = docker container inspect $containerName --format json | ConvertFrom-Json
+  if ($containerInspectResults) {
+    # RDPのポート番号が不一致の場合、現在のコンテナの状態をイメージに保存し、コンテナを再作成する
+    $hostPortMatched = $False
+    foreach ($container in $containerInspectResults) {
+      if ($container.Name -ne "/$containerName") {
+        continue
+      }
+      foreach ($portBinding in $container.HostConfig.PortBindings) {
+        $hostIpPort = $portBinding."3389/tcp"
+        if (-not($hostIpPort)) {
+          continue
+        }
+        if ($hostIpPort.HostPort -eq $rdpPort.ToString()) {
+          $hostPortMatched = $True
+          break
+        }
+      }
+      break;
+    }
+    docker cp "entrypoint.sh" "${containerName}:/home/xyzzy/entrypoint.sh"
+
+    if (-not $hostPortMatched) {
+      Write-Output "ポート番号が一致しません。コンテナを再作成します。"
+      docker stop $containerName
+      docker commit $containerName $tagName
+      docker container rm -f $containerName
+      $container = $null
+    }
+  }
+
+  if ($container) {
+    # コンテナが存在するがRDPのポートに接続できない場合、コンテナを再起動する。
+    if (-not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
+      Write-Output "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
+      docker stop $containerName
+      if (-not $?) {
+        Write-Error """docker stop $containerName"" コマンドの実行に失敗しました"
+      }
+      docker start $containerName
+      if (-not $?) {
+        Write-Error """docker start $containerName"" コマンドの実行に失敗しました"
+      }
+    }
+  }
+  else {
+    # コンテナが存在しない場合は作成する。
     $hidpiScaleFactor = Get-HidpiScaleFactor
     Write-Output "* HiDPI Scale Factor: $hidpiScaleFactor"
     docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor
@@ -196,24 +277,6 @@ function Start-AiSandbox {
     }
     else {
       docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName $tagName
-    }
-  }
-  else {
-    docker cp "entrypoint.sh" "${containerName}:/home/xyzzy/entrypoint.sh"
-    # TODO: `docker info` でRDPのポートの変更検知をする。
-    # 変更されている場合はdocker commitして再起動する。
-
-    # RDPのポートに接続できない場合、再起動する。
-    if (-not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
-      Write-Output "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
-      docker stop $containerName
-      if (-not $?) {
-        Write-Error """docker stop $containerName"" コマンドの実行に失敗しました"
-      }
-      docker start $containerName
-      if (-not $?) {
-        Write-Error """docker start $containerName"" コマンドの実行に失敗しました"
-      }
     }
   }
 
@@ -252,4 +315,4 @@ function Start-AiSandbox {
   Start-Sleep -Seconds $closeTimeoutSeconds
 }
 
-Start-AiSandbox -Release $Release -Rebuild $Rebuild
+Start-AiSandbox -Release $Release -Rebuild $Rebuild -ConfigPath $ConfigPath

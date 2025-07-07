@@ -45,9 +45,10 @@ set "startup_script=%startup_script% }                                          
 set "startup_script=%startup_script% $mainPs1Content = $splitBatContent[1];                                          "
 set "startup_script=%startup_script%                                                                                 "
 set "startup_script=%startup_script% $mainPs1Path = Join-Path $workspacePath main.ps1;                               "
+set "startup_script=%startup_script% $configPath = Join-Path (Split-Path $Env:bat_path -Parent) ai-sandbox.json;     "
 set "startup_script=%startup_script% Set-Content $mainPs1Path $mainPs1Content -Encoding UTF8;                        "
 set "startup_script=%startup_script% Set-Location $workspacePath;                                                    "
-set "startup_script=%startup_script% & $mainPs1Path -Release $True;                                                  "
+set "startup_script=%startup_script% & $mainPs1Path -Release $True -ConfigPath $configPath;                          "
 
 where /q powershell.exe
 if %errorlevel% equ 0 (
