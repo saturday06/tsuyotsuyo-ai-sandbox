@@ -108,9 +108,8 @@ function Start-AiSandbox {
 
   $config = @{}
   if (Test-Path $ConfigPath) {
-    $config = (Get-Content $ConfigPath | ConvertFrom-Json -AsHashtable)
-    if (-not $config) {
-      $config = @{}
+    foreach ($property in (Get-Content $ConfigPath | ConvertFrom-Json).PSObject.Properties) {
+      $config[$property.Name] = $property.Value
     }
   }
 
