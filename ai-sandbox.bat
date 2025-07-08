@@ -113,7 +113,7 @@ function Get-DeterministicRandom {
     [int]$MinValue,
     [int]$MaxValue
   )
-    
+
   if ($MinValue -gt $MaxValue) {
     throw "MinValue cannot be greater than MaxValue."
   }
@@ -157,7 +157,7 @@ function Get-DeterministicRandom {
 
 function Get-HidpiScaleFactor {
   param()
-  
+
   $hidpiScaleFactorPercentage = 100
   try {
     $monitorHandle = [TsuyotsuyoAiSandbox.User32Dll]::MonitorFromWindow([IntPtr]::Zero, 1)
