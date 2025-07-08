@@ -292,6 +292,7 @@ SETUP_SYSTEM_LOCALE
 
 RUN <<'SETUP_USER'
   set -eu
+  userdel -r ubuntu
   useradd --create-home --user-group --shell /bin/bash xyzzy
   echo "xyzzy ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/xyzzy
   mkdir -p /workspace
