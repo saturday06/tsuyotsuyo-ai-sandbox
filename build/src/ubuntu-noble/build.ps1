@@ -23,7 +23,6 @@ $outputContent += "`n"
 
 $outputContent += "<# ##################################### ai-sandbox.rdp ########################################`n"
 $outputContent += Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Raw -Encoding Unicode
-$outputContent += "password 51:b:### HASH ###`n"
 $outputContent += "######################################## ai-sandbox.rdp ##################################### #>`n"
 
 $outputContent = $outputContent.Replace("`r`n", "`n").Replace("`n", "`r`n")

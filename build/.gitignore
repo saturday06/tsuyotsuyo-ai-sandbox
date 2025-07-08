@@ -9,6 +9,7 @@
 /.vscode/
 /node_modules/
 /src/ubuntu-noble/ai-sandbox.json
+/src/ubuntu-noble/ai-sandbox-dev.rdp
 /super-linter-output/
 /var/
 __pycache__/

@@ -203,6 +203,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "sudo=*" \
     "supervisor=*" \
     "tesseract-ocr=*" \
+    "tofrodos=*" \
     "unzip=*" \
     "upower=*" \
     "vim=*" \
@@ -295,7 +296,7 @@ RUN <<'SETUP_USER'
   echo "xyzzy ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/xyzzy
   mkdir -p /workspace
   chown xyzzy:xyzzy /workspace
-  echo xyzzy:xyzzy | chpasswd
+  echo "xyzzy:$(openssl rand -hex 255)" | chpasswd
   xdg_runtime_dir="/run/user/$(id -u xyzzy)"
   mkdir -p "$xdg_runtime_dir"
   chown xyzzy:xyzzy "$xdg_runtime_dir"

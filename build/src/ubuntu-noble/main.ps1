@@ -95,6 +95,30 @@ function Get-HidpiScaleFactor {
   return $hidpiScaleFactor
 }
 
+function New-Password {
+  $lowercase = 'abcdefghijklmnopqrstuvwxyz'.ToCharArray()
+  $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.ToCharArray()
+  $numbers = '0123456789'.ToCharArray()
+  $symbols = '!@#$%^&*()-_=+[]{}|;:,.<>?'.ToCharArray()
+
+  # 各文字種から1文字ずつランダムに選択
+  $passwordChars = @()
+  $passwordChars += $lowercase | Get-Random -Count 1
+  $passwordChars += $uppercase | Get-Random -Count 1
+  $passwordChars += $numbers | Get-Random -Count 1
+  $passwordChars += $symbols | Get-Random -Count 1
+
+  # 全ての文字種からランダムに選択
+  $allChars = $lowercase + $uppercase + $numbers + $symbols
+  for ($i = 1; $i -le 60; $i++) {
+    $passwordChars += ($allChars | Get-Random -Count 1)
+  }
+
+  # シャッフルして最終パスワードを生成
+  $password = ($passwordChars | Sort-Object { Get-Random }) -join ''
+  return $password
+}
+
 function Start-AiSandbox {
   param(
     [bool]$Release,
@@ -144,7 +168,14 @@ function Start-AiSandbox {
   $workingTagName = "${baseName}-${directoryName}-local-working-tag"
   $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
-  $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox.rdp"
+
+  if ($Release) {
+    # RDPクライアントのタイトルに設定ファイル名を表示する
+    $aiSandboxRdpPath = Join-Path $PSScriptRoot ([System.IO.Path]::GetFileNameWithoutExtension($ConfigPath) + ".rdp")
+  }
+  else {
+    $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox-dev.rdp"
+  }
 
   Write-Output "* Config Path: ${ConfigPath}"
   Write-Output "* Docker Image Tag Name: ${tagName}"
@@ -154,6 +185,8 @@ function Start-AiSandbox {
   Write-Output "* Script Path: ${scriptPath}"
   Write-Output "* RDP Configuration Path: ${aiSandboxRdpPath}"
   Write-Output "* RDP Port Number: ${rdpPort}"
+
+  $rdpPassword = New-Password
 
   if ($Release) {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $False
@@ -184,12 +217,13 @@ function Start-AiSandbox {
     if (-not $entrypointShMatch.Success) {
       Write-Error "ai-sandbox.rdpの抽出に失敗しました。"
     }
-    $aiSandboxRdpContent = $aiSandboxRdpMatch.Groups[1].Value.Replace(
-      "### HASH ###",
-      (ConvertTo-SecureString "xyzzy" -AsPlainText -Force | ConvertFrom-SecureString)
-    )
-    Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
+    $aiSandboxRdpContent = $aiSandboxRdpMatch.Groups[1].Value
   }
+  else {
+    $aiSandboxRdpContent = Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Encoding Unicode
+  }
+  $aiSandboxRdpContent += "password 51:b:" + (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
+  Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
 
   if (-not (Get-Command "docker" -ErrorAction SilentlyContinue)) {
     Write-Output "*** dockerコマンドが見つかりませんでした。dockerをインストールしてください。 ***"
@@ -291,17 +325,21 @@ function Start-AiSandbox {
     Write-Error """127.0.0.1:${rdpPort}""に接続できませんでした。"
   }
 
+  # パイプでCRが付与されるので受信側でfromdosコマンドを用いて削除する。PowerShell 2.0だと-NoNewLineオプションは無い。
+  "xyzzy:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
+  if (-not ($?)) {
+    Write-Error "docker内ユーザーのパスワード変更に失敗しました。"
+  }
+
   Write-Output ""
   Write-Output "/////////////////////////////////////////////////////////////////"
   Write-Output "Dockerコンテナ上でリモートデスクトップサービスが開始されました。"
-  Write-Output "手動で接続する場合はRDPクライアントに次の情報を入力してください。"
-  Write-Output "- コンピューター: 127.0.0.1:${rdpPort}"
-  Write-Output "- ユーザー名: xyzzy"
-  Write-Output "- パスワード: xyzzy"
+  Write-Output "手動で接続する場合は次のRDP接続設定ファイルをご利用ください。"
+  Write-Output "${aiSandboxRdpPath}"
   Write-Output "/////////////////////////////////////////////////////////////////"
   Write-Output ""
 
-  mstsc ai-sandbox.rdp /v:"127.0.0.1:${rdpPort}"
+  mstsc $aiSandboxRdpPath /v:"127.0.0.1:${rdpPort}"
   if ($?) {
     Write-Output "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
   }
