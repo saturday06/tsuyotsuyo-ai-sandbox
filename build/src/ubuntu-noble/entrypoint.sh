@@ -5,7 +5,7 @@ set -emux -o pipefail
 
 cd "$(dirname "$0")"
 
-for p in dbus-daemon Xvfb gnome-remote-desktop-daemon supervisord gnome-shell gnome-session xrdp xrdp-sesman; do
+for p in dbus-daemon Xvfb gnome-remote-desktop-daemon supervisord gnome-shell gnome-session xrdp xrdp-sesman plasma_session; do
   if pgrep "$p" >/dev/null; then
     echo "Killing existing $p processes..."
     sudo pkill "$p" || true

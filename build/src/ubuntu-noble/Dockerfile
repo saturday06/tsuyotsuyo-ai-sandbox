@@ -144,7 +144,6 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "fonts-noto=*" \
     "git-lfs=*" \
     "git=*" \
-    "gnome-keyring=*" \
     "gnupg=*" \
     "ibus-gtk=*" \
     "ibus-gtk3=*" \
@@ -155,6 +154,8 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "imagemagick=*" \
     "iproute2=*" \
     "jq=*" \
+    "kde-plasma-desktop=*" \
+    "kwin-x11=*" \
     "language-pack-ja=*" \
     "less=*" \
     "libavcodec-dev=*" \
@@ -195,6 +196,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "procps=*" \
     "pulseaudio-utils=*" \
     "pulseaudio=*" \
+    "qml-module-qt-labs-platform=*" \
     "recordmydesktop=*" \
     "ruby=*" \
     "shellcheck=*" \
@@ -202,6 +204,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "speech-dispatcher=*" \
     "sudo=*" \
     "supervisor=*" \
+    "systemsettings=*" \
     "tesseract-ocr=*" \
     "tofrodos=*" \
     "unzip=*" \
@@ -212,12 +215,9 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "x11-utils=*" \
     "x11-xserver-utils=*" \
     "xdotool=*" \
-    "xfce4-pulseaudio-plugin=*" \
-    "xfce4-terminal=*" \
     "xorg=*" \
     "xserver-xorg-dev=*" \
     "xserver-xorg-input-all=*" \
-    "xubuntu-desktop=*" \
     "xvfb=*" \
     "xz-utils=*" \
     "zopfli=*" \
@@ -321,7 +321,7 @@ SHELL_PROFILE_SCRIPT
   cat <<'XSESSION_SCRIPT' >~/.xsession
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 (ibus version && ibus restart) || true
-xfce4-session
+plasma_session
 XSESSION_SCRIPT
 
   mkdir -p ~/.config/mozc/
@@ -337,7 +337,149 @@ engines {
 active_on_launch: True
 MOZC_IBUS_CONFIG
 
-  xvfb-run --auto-servernum xfconf-query --channel keyboard-layout --property /Default/XkbDisable --type bool --set false --create
+  cat <<'PLASMASHELLRC' >~/.config/plasmashellrc
+[PlasmaViews][Panel 2][Defaults]
+thickness=48
+PLASMASHELLRC
+
+  cat <<'KACTIVITYMANAGERDRC' >~/.config/kactivitymanagerdrc
+[activities]
+208ca9a2-ff65-4693-8513-d7405b026eb2=Default
+
+[main]
+currentActivity=208ca9a2-ff65-4693-8513-d7405b026eb2
+KACTIVITYMANAGERDRC
+
+  cat <<'PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC' >~/.config/plasma-org.kde.plasma.desktop-appletsrc
+[ActionPlugins][0]
+RightButton;NoModifier=org.kde.contextmenu
+wheel:Vertical;NoModifier=org.kde.switchdesktop
+
+[ActionPlugins][1]
+RightButton;NoModifier=org.kde.contextmenu
+
+[Containments][1]
+ItemGeometries-1800x960=
+ItemGeometriesHorizontal=
+activityId=208ca9a2-ff65-4693-8513-d7405b026eb2
+formfactor=0
+immutability=1
+lastScreen=0
+location=0
+plugin=org.kde.plasma.folder
+wallpaperplugin=org.kde.image
+
+[Containments][2]
+activityId=
+formfactor=2
+immutability=1
+lastScreen=0
+location=4
+plugin=org.kde.panel
+wallpaperplugin=org.kde.image
+
+[Containments][2][Applets][16]
+immutability=1
+plugin=org.kde.plasma.showdesktop
+
+[Containments][2][Applets][3]
+immutability=1
+plugin=org.kde.plasma.kickoff
+
+[Containments][2][Applets][3][Configuration]
+PreloadWeight=100
+popupHeight=514
+popupWidth=641
+
+[Containments][2][Applets][3][Configuration][General]
+favoritesPortedToKAstats=true
+
+[Containments][2][Applets][3][Configuration][Shortcuts]
+global=Alt+F1
+
+[Containments][2][Applets][3][Shortcuts]
+global=Alt+F1
+
+[Containments][2][Applets][4]
+immutability=1
+plugin=org.kde.plasma.pager
+
+[Containments][2][Applets][5]
+immutability=1
+plugin=org.kde.plasma.icontasks
+
+[Containments][2][Applets][5][Configuration][General]
+launchers=preferred://filemanager,applications:firefox-esr.desktop,applications:org.kde.konsole.desktop
+
+[Containments][2][Applets][6]
+immutability=1
+plugin=org.kde.plasma.marginsseparator
+
+[Containments][2][Applets][7]
+immutability=1
+plugin=org.kde.plasma.kimpanel
+
+[Containments][2][Applets][8]
+immutability=1
+plugin=org.kde.plasma.systemtray
+
+[Containments][2][Applets][8][Configuration]
+PreloadWeight=55
+SystrayContainmentId=9
+
+[Containments][2][ConfigDialog]
+DialogHeight=84
+DialogWidth=1800
+
+[Containments][2][General]
+AppletOrder=3;4;5;6;7;8;16
+
+[Containments][9]
+activityId=
+formfactor=2
+immutability=1
+lastScreen=0
+location=4
+plugin=org.kde.plasma.private.systemtray
+wallpaperplugin=org.kde.image
+
+[Containments][9][Applets][10]
+immutability=1
+plugin=org.kde.plasma.manage-inputmethod
+
+[Containments][9][Applets][11]
+immutability=1
+plugin=org.kde.plasma.keyboardlayout
+
+[Containments][9][Applets][12]
+immutability=1
+plugin=org.kde.plasma.clipboard
+
+[Containments][9][Applets][13]
+immutability=1
+plugin=org.kde.plasma.notifications
+
+[Containments][9][Applets][14]
+immutability=1
+plugin=org.kde.plasma.devicenotifier
+
+[Containments][9][General]
+extraItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardlayout,org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.notifications,org.kde.plasma.devicenotifier
+knownItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardlayout,org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.notifications,org.kde.plasma.devicenotifier
+
+[ScreenMapping]
+itemsOnDisabledScreens=
+screenMapping=
+PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
+
+  kcm_force_font_dpi=$(perl -MPOSIX=floor -le 'print floor(96 * sqrt(shift))' "$hidpi_scale_factor")
+  kwriteconfig5 --file ~/.config/kcmfonts --group General --key forceFontDPI "$kcm_force_font_dpi"
+  kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key Autolock false
+  kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockAfterIdle false
+  kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockOnResume false
+  kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key Timeout 0
+  kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group kwin --key "Walk Through Windows of Current Application" 'none,alt+`,Walk Through Windows of Current Application'
+
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
