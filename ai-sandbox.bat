@@ -231,10 +231,24 @@ function Start-AiSandbox {
     $configUpdated = $True
   }
 
-  $rdpPort = $config["rdp_port"]
-  if (-not($rdpPort -is [int] -and 0 -lt $rdpPort -and $rdpPort -lt 65536)) {
+  $rdpPort = $config["rdp_port"] -as [int]
+  if (-not($rdpPort -ne $null -and 0 -lt $rdpPort -and $rdpPort -lt 65536)) {
     $rdpPort = Get-DeterministicRandom -SeedString $scriptPath -MinValue 49152 -MaxValue 59312 # Rancher Desktop doesn't support `port >= 59312`.
     $config["rdp_port"] = $rdpPort
+    $configUpdated = $True
+  }
+
+  $rdpWidth = $config["rdp_width"] -as [int]
+  if (-not($rdpWidth -ne $null -and 0 -lt $rdpWidth -and $rdpWidth -lt 65536)) {
+    $rdpWidth = 1800
+    $config["rdp_width"] = $rdpWidth
+    $configUpdated = $True
+  }
+
+  $rdpHeight = $config["rdp_height"] -as [int]
+  if (-not($rdpHeight -ne $null -and 0 -lt $rdpHeight -and $rdpHeight -lt 65536)) {
+    $rdpHeight = 960
+    $config["rdp_height"] = $rdpHeight
     $configUpdated = $True
   }
 
@@ -416,7 +430,7 @@ function Start-AiSandbox {
   Write-Output "/////////////////////////////////////////////////////////////////"
   Write-Output ""
 
-  mstsc $aiSandboxRdpPath /v:"127.0.0.1:${rdpPort}"
+  mstsc $aiSandboxRdpPath /v:"127.0.0.1:${rdpPort}" /w:$rdpWidth /h:$rdpHeight
   if ($?) {
     Write-Output "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
   }
