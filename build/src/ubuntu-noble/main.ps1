@@ -142,14 +142,14 @@ function Start-AiSandbox {
   $configUpdated = $False
   $tagName = $config["tag_name"]
   if (-not ($tagName -is [string] -and ($tagName -match $tagAndContainerNamePattern))) {
-    $tagName = "${baseName}-${directoryName}-local-tag"
+    $tagName = "${baseName}-${directoryName}-tag"
     $config["tag_name"] = $tagName
     $configUpdated = $True
   }
 
   $containerName = $config["container_name"]
   if (-not ($containerName -is [string] -and $containerName -match $tagAndContainerNamePattern)) {
-    $containerName = "${baseName}-${directoryName}-local-container"
+    $containerName = "${baseName}-${directoryName}-container"
     $config["container_name"] = $containerName
     $configUpdated = $True
   }
@@ -179,7 +179,7 @@ function Start-AiSandbox {
     Set-Content $ConfigPath (ConvertTo-Json $config)
   }
 
-  $workingTagName = "${baseName}-${directoryName}-local-working-tag"
+  $workingTagName = "${baseName}-${directoryName}-working-tag"
   $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
 
