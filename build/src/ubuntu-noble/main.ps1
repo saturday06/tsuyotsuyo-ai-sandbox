@@ -229,7 +229,7 @@ function Start-AiSandbox {
       "(?s)<# #{37} ai-sandbox\.rdp #{40}\r\n(.+)#{40} ai-sandbox\.rdp #{37} #>"
     )
     if (-not $entrypointShMatch.Success) {
-      Write-Error "ai-sandbox.rdpの抽出に失敗しました。"
+      Write-Error "RDP接続設定ファイルの抽出に失敗しました。"
     }
     $aiSandboxRdpContent = $aiSandboxRdpMatch.Groups[1].Value
   }
@@ -279,7 +279,7 @@ function Start-AiSandbox {
     docker cp "entrypoint.sh" "${containerName}:/home/xyzzy/entrypoint.sh"
 
     if (-not $hostPortMatched) {
-      Write-Output "ポート番号が一致しません。コンテナを再作成します。"
+      Write-Output "ポート番号が一致しません。現在のコンテナの状態をイメージに保存し、そこからコンテナを再作成します。"
       docker stop $containerName
       docker commit $containerName $tagName
       docker container rm -f $containerName
