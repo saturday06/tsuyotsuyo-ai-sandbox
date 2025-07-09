@@ -132,6 +132,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "dolphin-plugins=*" \
     "dotnet-sdk-8.0=*" \
     "emacs=*" \
+    "fcitx5-mozc=*" \
     "ffmpeg=*" \
     "ffmpegthumbs=*" \
     "file=*" \
@@ -153,15 +154,10 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "git=*" \
     "gnupg=*" \
     "gwenview=*" \
-    "ibus-gtk=*" \
-    "ibus-gtk3=*" \
-    "ibus-gtk4=*" \
-    "ibus-mozc=*" \
-    "ibus=*" \
-    "im-config=*" \
     "imagemagick=*" \
     "iproute2=*" \
     "jq=*" \
+    "kde-config-fcitx5=*" \
     "kde-plasma-desktop=*" \
     "kio-extras=*" \
     "kwin-x11=*" \
@@ -262,7 +258,6 @@ RUN <<'INSTALL_XRDP'
     --with-freetype2=yes
   make
   make install
-  echo '(ibus version && ibus restart) || true' >>/etc/xrdp/reconnectwm.sh
 INSTALL_XRDP
 
 RUN <<'INSTALL_XORGXRDP'
@@ -322,6 +317,8 @@ WORKDIR /home/xyzzy
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
 
+  mkdir -p ~/.config
+
   cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
 export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
@@ -332,22 +329,8 @@ SHELL_PROFILE_SCRIPT
 
   cat <<'XSESSION_SCRIPT' >~/.xsession
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-(ibus version && ibus restart) || true
 plasma_session
 XSESSION_SCRIPT
-
-  mkdir -p ~/.config/mozc/
-  cat <<'MOZC_IBUS_CONFIG' >~/.config/mozc/ibus_config.textproto
-engines {
-  name : "mozc-jp"
-  longname : "Mozc"
-  layout : "default"
-  layout_variant : ""
-  layout_option : ""
-  rank : 80
-}
-active_on_launch: True
-MOZC_IBUS_CONFIG
 
   cat <<'PLASMASHELLRC' >~/.config/plasmashellrc
 [PlasmaViews][Panel 2][Defaults]
@@ -491,10 +474,6 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockOnResume false
   kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key Timeout 0
   kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group kwin --key "Walk Through Windows of Current Application" 'none,alt+`,Walk Through Windows of Current Application'
-
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
   xvfb-run --auto-servernum gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
