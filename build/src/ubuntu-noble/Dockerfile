@@ -349,13 +349,8 @@ export UV_LINK_MODE=copy
 # https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
 export DONT_PROMPT_WSL_INSTALL=true
 export PATH="/usr/local/cuda/bin:$PATH"
-SHELL_PROFILE_SCRIPT
-
-  cat <<'XSESSION_SCRIPT' >~/.xsession
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-(ibus version && ibus restart) || true
-plasma_session
-XSESSION_SCRIPT
+SHELL_PROFILE_SCRIPT
 
   mkdir -p ~/.config/mozc/
   cat <<'MOZC_IBUS_CONFIG' >~/.config/mozc/ibus_config.textproto
@@ -511,7 +506,11 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockAfterIdle false
   kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key LockOnResume false
   kwriteconfig5 --file ~/.config/kscreenlockerrc --group Daemon --key Timeout 0
+  kwriteconfig5 --file ~/.config/ksplashrc --group KSplash --key Theme None
+  kwriteconfig5 --file ~/.config/ksplashrc --group KSplash --key Engine none
+  kwriteconfig5 --file ~/.config/kuriikwsfilterrc --group General --key DefaultWebShortcut google
   kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group kwin --key "Walk Through Windows of Current Application" 'none,alt+`,Walk Through Windows of Current Application'
+  kwriteconfig5 --file ~/.config/kwalletrc --group "Wallet" --key "Enabled" "false"
 
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
