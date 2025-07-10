@@ -678,8 +678,8 @@ INSTALL_OFFICIAL_PACKAGES
 
 RUN <<'INSTALL_XRDP'
   set -eu
-  curl --fail --show-error --location --retry 5 --retry-all-errors --output xrdp.tar.gz https://github.com/neutrinolabs/xrdp/releases/download/v0.10.3/xrdp-0.10.3.tar.gz
-  test "$(shasum -a 512256 xrdp.tar.gz)" = "f5435113ee2e1faa483743f6a000dae579f667ff185a00a53f0bce31a05eb65c  xrdp.tar.gz"
+  curl --fail --show-error --location --retry 5 --retry-all-errors --output xrdp.tar.gz https://github.com/neutrinolabs/xrdp/releases/download/v0.10.4.1/xrdp-0.10.4.1.tar.gz
+  test "$(shasum -a 512256 xrdp.tar.gz)" = "bd3bb42081cbc05dfc85045f4422627d4e1464654bac26e126f4bf1959f7bd05  xrdp.tar.gz"
   mkdir -p xrdp
   cd xrdp
   tar -xf ../xrdp.tar.gz --strip-components=1
