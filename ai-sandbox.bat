@@ -306,7 +306,7 @@ function Start-AiSandbox {
       "(?s)<# #{37} ai-sandbox\.rdp #{40}\r\n(.+)#{40} ai-sandbox\.rdp #{37} #>"
     )
     if (-not $entrypointShMatch.Success) {
-      Write-Error "ai-sandbox.rdpの抽出に失敗しました。"
+      Write-Error "RDP接続設定ファイルの抽出に失敗しました。"
     }
     $aiSandboxRdpContent = $aiSandboxRdpMatch.Groups[1].Value
   }
