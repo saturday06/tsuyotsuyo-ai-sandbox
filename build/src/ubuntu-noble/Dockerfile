@@ -508,7 +508,7 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   curl --fail --show-error --location --retry 5 --retry-all-errors https://fnm.vercel.app/install | bash
 SETUP_USER_LOCAL_ENVIRONMENT
 
-WORKDIR /workspace
-
-COPY --chown=xyzzy:xyzzy --chmod=755 ./entrypoint.sh /home/xyzzy/entrypoint.sh
-ENTRYPOINT ["/bin/bash", "-lmic", "/home/xyzzy/entrypoint.sh 2>&1 | tee /home/xyzzy/entrypoint.log"]
+USER root
+WORKDIR /root
+COPY --chown=root:root --chmod=755 ./entrypoint.sh /root/entrypoint.sh
+ENTRYPOINT ["/bin/bash", "-lmic", "/root/entrypoint.sh 2>&1 | tee /root/entrypoint.log"]

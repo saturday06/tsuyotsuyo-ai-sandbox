@@ -8,11 +8,11 @@ cd "$(dirname "$0")"
 for p in dbus-daemon Xvfb gnome-remote-desktop-daemon supervisord gnome-shell gnome-session xrdp xrdp-sesman plasma_session; do
   if pgrep "$p" >/dev/null; then
     echo "Killing existing $p processes..."
-    sudo pkill "$p" || true
+    pkill "$p" || true
   fi
 done
 
-sudo tee /etc/supervisor/conf.d/default.conf <<SUPERVISORD_CONF >/dev/null
+tee /etc/supervisor/conf.d/default.conf <<SUPERVISORD_CONF >/dev/null
 [program:dbus-daemon]
 command=/usr/bin/dbus-daemon --system --nofork --nopidfile
 
@@ -23,4 +23,4 @@ command=/usr/local/sbin/xrdp-sesman --nodaemon
 command=/usr/local/sbin/xrdp --nodaemon
 SUPERVISORD_CONF
 
-exec sudo /usr/bin/supervisord --nodaemon
+exec /usr/bin/supervisord --nodaemon

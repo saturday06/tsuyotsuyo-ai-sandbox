@@ -336,7 +336,7 @@ function Start-AiSandbox {
   $containerInspectResults = docker container inspect $containerName --format json | ConvertFrom-Json
   if ($containerInspectResults) {
     # RDPのポート番号が不一致の場合、現在のコンテナの状態をイメージに保存し、コンテナを再作成する
-    $hostPortMatched = $False
+    $restartReason = "ポート番号が一致しません。現在のコンテナの状態をイメージに保存し、そこからコンテナを再作成します。"
     foreach ($container in $containerInspectResults) {
       if ($container.Name -ne "/$containerName") {
         continue
@@ -347,55 +347,57 @@ function Start-AiSandbox {
           continue
         }
         if ($hostIpPort.HostPort -eq $rdpPort.ToString()) {
-          $hostPortMatched = $True
+          $restartReason = $null
           break
         }
       }
       break;
     }
+
+    if (-not ($restartReason) -and -not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
+      $restartReason = "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
+    }
+
     docker cp "entrypoint.sh" "${containerName}:/home/xyzzy/entrypoint.sh"
 
-    if (-not $hostPortMatched) {
-      Write-Output "ポート番号が一致しません。コンテナを再作成します。"
+    if ($restartReason) {
+      Write-Output $restartReason
       docker stop $containerName
       docker commit $containerName $tagName
       docker container rm -f $containerName
-      $container = $null
+      $containerInspectResults = $null
     }
   }
 
-  if ($container) {
-    # コンテナが存在するがRDPのポートに接続できない場合、コンテナを再起動する。
-    if (-not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
-      Write-Output "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
-      docker stop $containerName
-      if (-not $?) {
-        Write-Error """docker stop $containerName"" コマンドの実行に失敗しました"
-      }
-      docker start $containerName
-      if (-not $?) {
-        Write-Error """docker start $containerName"" コマンドの実行に失敗しました"
+  if (-not ($containerInspectResults)) {
+    $rebuildImage = $True
+    $imageInspectResults = docker image inspect $tagName --format json | ConvertFrom-Json
+    foreach ($image in $imageInspectResults) {
+      if ($image.RepoTags -contains "${tagName}:latest") {
+        $rebuildImage = $False
+        break
       }
     }
-  }
-  else {
-    # コンテナが存在しない場合は作成する。
-    $hidpiScaleFactor = Get-HidpiScaleFactor
-    Write-Output "* HiDPI Scale Factor: $hidpiScaleFactor"
-    docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor
-    if (-not $?) {
-      Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor"" コマンドの実行に失敗しました"
+
+    if ($rebuildImage) {
+      $hidpiScaleFactor = Get-HidpiScaleFactor
+      Write-Output "* HiDPI Scale Factor: $hidpiScaleFactor"
+      docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor
+      if (-not $?) {
+        Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor"" コマンドの実行に失敗しました"
+      }
+      docker image rm $tagName
+      docker image tag $workingTagName $tagName
+      if (-not $?) {
+        Write-Error """docker image tag $workingTagName $tagName"" コマンドの実行に失敗しました"
+      }
+      docker image rm $workingTagName
+      if (-not $?) {
+        Write-Error """docker image rm $workingTagName"" コマンドの実行に失敗しました"
+      }
     }
-    docker image rm $tagName
-    docker image tag $workingTagName $tagName
-    if (-not $?) {
-      Write-Error """docker image tag $workingTagName $tagName"" コマンドの実行に失敗しました"
-    }
-    docker image rm $workingTagName
-    if (-not $?) {
-      Write-Error """docker image rm $workingTagName"" コマンドの実行に失敗しました"
-    }
-    docker run --gpus=all ubuntu:noble true
+
+    docker run --rm --gpus=all busybox true
     if ($?) {
       docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --gpus=all $tagName
     }
@@ -956,10 +958,10 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   curl --fail --show-error --location --retry 5 --retry-all-errors https://fnm.vercel.app/install | bash
 SETUP_USER_LOCAL_ENVIRONMENT
 
-WORKDIR /workspace
-
-COPY --chown=xyzzy:xyzzy --chmod=755 ./entrypoint.sh /home/xyzzy/entrypoint.sh
-ENTRYPOINT ["/bin/bash", "-lmic", "/home/xyzzy/entrypoint.sh 2>&1 | tee /home/xyzzy/entrypoint.log"]
+USER root
+WORKDIR /root
+COPY --chown=root:root --chmod=755 ./entrypoint.sh /root/entrypoint.sh
+ENTRYPOINT ["/bin/bash", "-lmic", "/root/entrypoint.sh 2>&1 | tee /root/entrypoint.log"]
 ######################################## Dockerfile ##################################### #>
 
 <# ##################################### entrypoint.sh ########################################
@@ -973,11 +975,11 @@ cd "$(dirname "$0")"
 for p in dbus-daemon Xvfb gnome-remote-desktop-daemon supervisord gnome-shell gnome-session xrdp xrdp-sesman plasma_session; do
   if pgrep "$p" >/dev/null; then
     echo "Killing existing $p processes..."
-    sudo pkill "$p" || true
+    pkill "$p" || true
   fi
 done
 
-sudo tee /etc/supervisor/conf.d/default.conf <<SUPERVISORD_CONF >/dev/null
+tee /etc/supervisor/conf.d/default.conf <<SUPERVISORD_CONF >/dev/null
 [program:dbus-daemon]
 command=/usr/bin/dbus-daemon --system --nofork --nopidfile
 
@@ -988,7 +990,7 @@ command=/usr/local/sbin/xrdp-sesman --nodaemon
 command=/usr/local/sbin/xrdp --nodaemon
 SUPERVISORD_CONF
 
-exec sudo /usr/bin/supervisord --nodaemon
+exec /usr/bin/supervisord --nodaemon
 ######################################## entrypoint.sh ##################################### #>
 
 <# ##################################### ai-sandbox.rdp ########################################
