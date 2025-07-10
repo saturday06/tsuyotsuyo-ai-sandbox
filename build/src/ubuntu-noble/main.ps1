@@ -126,6 +126,7 @@ function Start-AiSandbox {
     [string]$ConfigPath
   )
 
+  $userName = "developer"
   $baseName = "ubuntu-noble"
   $directoryName = (Split-Path -Path $PSScriptRoot -Leaf)
   $scriptPath = $script:MyInvocation.MyCommand.Path
@@ -236,6 +237,7 @@ function Start-AiSandbox {
   else {
     $aiSandboxRdpContent = Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Encoding Unicode
   }
+  $aiSandboxRdpContent += "username:s:${userName}`n"
   $aiSandboxRdpContent += "password 51:b:" + (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
   Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
 
@@ -305,9 +307,9 @@ function Start-AiSandbox {
     if ($rebuildImage) {
       $hidpiScaleFactor = Get-HidpiScaleFactor
       Write-Output "* HiDPI Scale Factor: $hidpiScaleFactor"
-      docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor
+      docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor --build-arg user_name=$userName
       if (-not $?) {
-        Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor"" コマンドの実行に失敗しました"
+        Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor --build-arg user_name=$userName"" コマンドの実行に失敗しました"
       }
       docker image rm $tagName
       docker image tag $workingTagName $tagName
@@ -342,7 +344,7 @@ function Start-AiSandbox {
   }
 
   # パイプでCRが付与されるので受信側でfromdosコマンドを用いて削除する。PowerShell 2.0だと-NoNewLineオプションは無い。
-  "xyzzy:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
+  "${userName}:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
   if (-not ($?)) {
     Write-Error "docker内ユーザーのパスワード変更に失敗しました。"
   }

@@ -5,6 +5,7 @@
 
 FROM ubuntu:noble
 ARG hidpi_scale_factor=1
+ARG user_name=developer
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -306,19 +307,18 @@ SETUP_SYSTEM_LOCALE
 RUN <<'SETUP_USER'
   set -eu
   userdel -r ubuntu
-  useradd --create-home --user-group --shell /bin/bash xyzzy
-  echo "xyzzy ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/xyzzy
+  useradd --create-home --user-group --shell /bin/bash "$user_name"
+  echo "${user_name} ALL=(root) NOPASSWD:ALL" | tee "/etc/sudoers.d/${user_name}"
   mkdir -p /workspace
-  chown xyzzy:xyzzy /workspace
-  echo "xyzzy:$(openssl rand -hex 255)" | chpasswd
-  xdg_runtime_dir="/run/user/$(id -u xyzzy)"
+  echo "${user_name}:$(openssl rand -hex 255)" | chpasswd
+  xdg_runtime_dir="/run/user/$(id -u "$user_name")"
   mkdir -p "$xdg_runtime_dir"
-  chown xyzzy:xyzzy "$xdg_runtime_dir"
+  chown "${user_name}:${user_name}" "$xdg_runtime_dir"
   chmod 700 "$xdg_runtime_dir"
 SETUP_USER
 
-USER xyzzy
-WORKDIR /home/xyzzy
+USER "$user_name"
+WORKDIR "/home/${user_name}"
 
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu

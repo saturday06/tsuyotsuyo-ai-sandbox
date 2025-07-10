@@ -203,6 +203,7 @@ function Start-AiSandbox {
     [string]$ConfigPath
   )
 
+  $userName = "developer"
   $baseName = "ubuntu-noble"
   $directoryName = (Split-Path -Path $PSScriptRoot -Leaf)
   $scriptPath = $script:MyInvocation.MyCommand.Path
@@ -313,6 +314,7 @@ function Start-AiSandbox {
   else {
     $aiSandboxRdpContent = Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Encoding Unicode
   }
+  $aiSandboxRdpContent += "username:s:${userName}`n"
   $aiSandboxRdpContent += "password 51:b:" + (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
   Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
 
@@ -382,9 +384,9 @@ function Start-AiSandbox {
     if ($rebuildImage) {
       $hidpiScaleFactor = Get-HidpiScaleFactor
       Write-Output "* HiDPI Scale Factor: $hidpiScaleFactor"
-      docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor
+      docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor --build-arg user_name=$userName
       if (-not $?) {
-        Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor"" コマンドの実行に失敗しました"
+        Write-Error """docker build . --tag $workingTagName --progress plain --build-arg hidpi_scale_factor=$hidpiScaleFactor --build-arg user_name=$userName"" コマンドの実行に失敗しました"
       }
       docker image rm $tagName
       docker image tag $workingTagName $tagName
@@ -419,7 +421,7 @@ function Start-AiSandbox {
   }
 
   # パイプでCRが付与されるので受信側でfromdosコマンドを用いて削除する。PowerShell 2.0だと-NoNewLineオプションは無い。
-  "xyzzy:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
+  "${userName}:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
   if (-not ($?)) {
     Write-Error "docker内ユーザーのパスワード変更に失敗しました。"
   }
@@ -455,6 +457,7 @@ Start-AiSandbox -Release $Release -Rebuild $Rebuild -ConfigPath $ConfigPath
 
 FROM ubuntu:noble
 ARG hidpi_scale_factor=1
+ARG user_name=developer
 
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -756,19 +759,18 @@ SETUP_SYSTEM_LOCALE
 RUN <<'SETUP_USER'
   set -eu
   userdel -r ubuntu
-  useradd --create-home --user-group --shell /bin/bash xyzzy
-  echo "xyzzy ALL=(root) NOPASSWD:ALL" | tee /etc/sudoers.d/xyzzy
+  useradd --create-home --user-group --shell /bin/bash "$user_name"
+  echo "${user_name} ALL=(root) NOPASSWD:ALL" | tee "/etc/sudoers.d/${user_name}"
   mkdir -p /workspace
-  chown xyzzy:xyzzy /workspace
-  echo "xyzzy:$(openssl rand -hex 255)" | chpasswd
-  xdg_runtime_dir="/run/user/$(id -u xyzzy)"
+  echo "${user_name}:$(openssl rand -hex 255)" | chpasswd
+  xdg_runtime_dir="/run/user/$(id -u "$user_name")"
   mkdir -p "$xdg_runtime_dir"
-  chown xyzzy:xyzzy "$xdg_runtime_dir"
+  chown "${user_name}:${user_name}" "$xdg_runtime_dir"
   chmod 700 "$xdg_runtime_dir"
 SETUP_USER
 
-USER xyzzy
-WORKDIR /home/xyzzy
+USER "$user_name"
+WORKDIR "/home/${user_name}"
 
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
@@ -1064,5 +1066,4 @@ remoteappmousemoveinject:i:1
 redirectwebauthn:i:0
 enablerdsaadauth:i:0
 drivestoredirect:s:
-username:s:xyzzy
 ######################################## ai-sandbox.rdp ##################################### #>
