@@ -773,6 +773,26 @@ WORKDIR /home/xyzzy
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
 
+  mkdir -p ~/.local/share/applications
+
+  cp /usr/share/applications/code.desktop ~/.local/share/applications/code-no-sandbox.desktop
+  desktop-file-edit \
+    --set-name="Visual Studio Code (No Sandbox)" \
+    ~/.local/share/applications/code-no-sandbox.desktop
+  desktop-file-edit \
+    --set-key=Exec \
+    --set-value="/usr/share/code/code --no-sandbox --disable-gpu --disable-dev-shm-usage %F" \
+    ~/.local/share/applications/code-no-sandbox.desktop
+
+  cp /usr/share/applications/google-chrome.desktop ~/.local/share/applications/google-chrome-no-sandbox.desktop
+  desktop-file-edit \
+    --set-name="Google Chrome (No Sandbox)" \
+    ~/.local/share/applications/google-chrome-no-sandbox.desktop
+  desktop-file-edit \
+    --set-key=Exec \
+    --set-value="/usr/bin/google-chrome-stable --no-sandbox --disable-gpu --disable-dev-shm-usage %U" \
+    ~/.local/share/applications/google-chrome-no-sandbox.desktop
+
   cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
 export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
@@ -872,7 +892,7 @@ immutability=1
 plugin=org.kde.plasma.icontasks
 
 [Containments][2][Applets][5][Configuration][General]
-launchers=preferred://filemanager,applications:firefox-esr.desktop,applications:org.kde.konsole.desktop
+launchers=preferred://filemanager,applications:firefox-esr.desktop,applications:code-no-sandbox.desktop,applications:org.kde.konsole.desktop
 
 [Containments][2][Applets][6]
 immutability=1
