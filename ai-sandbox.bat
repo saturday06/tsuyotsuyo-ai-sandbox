@@ -566,6 +566,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "advancecomp=*" \
     "apt-file=*" \
     "audacity=*" \
+    "bc=*" \
     "blender=*" \
     "build-essential=*" \
     "check=*" \
