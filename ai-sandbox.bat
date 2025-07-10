@@ -962,7 +962,7 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/ksplashrc --group KSplash --key Engine none
   kwriteconfig5 --file ~/.config/kuriikwsfilterrc --group General --key DefaultWebShortcut google
   kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group kwin --key "Walk Through Windows of Current Application" 'none,alt+`,Walk Through Windows of Current Application'
-  kwriteconfig5 --file ~/.config/kwalletrc --group "Wallet" --key "Enabled" "false"
+  kwriteconfig5 --file ~/.config/kwalletrc --group Wallet --key Enabled false
 
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
