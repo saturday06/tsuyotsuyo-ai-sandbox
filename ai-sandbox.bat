@@ -358,7 +358,7 @@ function Start-AiSandbox {
       $restartReason = "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
     }
 
-    docker cp "entrypoint.sh" "${containerName}:/home/xyzzy/entrypoint.sh"
+    docker cp "entrypoint.sh" "${containerName}:/root/entrypoint.sh"
 
     if ($restartReason) {
       Write-Output $restartReason
