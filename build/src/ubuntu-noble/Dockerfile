@@ -323,6 +323,27 @@ WORKDIR /home/xyzzy
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
 
+  mkdir -p ~/.local/share/applications
+
+  cat <<'CODE_NO_SANDBOX' >~/.local/share/applications/code-no-sandbox.desktop
+[Desktop Entry]
+Name=Visual Studio Code (No Sandbox)
+Exec=/usr/share/code/code --no-sandbox --disable-gpu --disable-dev-shm-usage %F
+Icon=vscode
+Type=Application
+StartupNotify=false
+StartupWMClass=Code
+CODE_NO_SANDBOX
+
+  cat <<'GOOGLE_CHROME_NO_SANDBOX' >~/.local/share/applications/google-chrome-no-sandbox.desktop
+[Desktop Entry]
+Name=Google Chrome Code (No Sandbox)
+Exec=/usr/bin/google-chrome-stable --no-sandbox --disable-gpu --disable-dev-shm-usage %U
+Icon=google-chrome
+Type=Application
+StartupNotify=true
+CODE_NO_SANDBOX
+
   cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
 export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
 export UV_LINK_MODE=copy
