@@ -659,6 +659,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "netcat-openbsd=*" \
     "nkf=*" \
     "openssh-client=*" \
+    "p7zip=*" \
     "paprefs=*" \
     "patchutils=*" \
     "pavucontrol=*" \
