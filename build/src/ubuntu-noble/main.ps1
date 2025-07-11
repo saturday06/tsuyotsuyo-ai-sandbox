@@ -259,43 +259,41 @@ function Start-AiSandbox {
     docker image rm -f $workingTagName
   }
 
-  $containerInspectResults = docker container inspect $containerName --format json | ConvertFrom-Json
-  if ($containerInspectResults) {
-    # RDPのポート番号が不一致の場合、現在のコンテナの状態をイメージに保存し、コンテナを再作成する
+  $containerInspectResult = docker container inspect $containerName --format json 2>$null | ConvertFrom-Json | Where-Object { $_.Name -eq "/$containerName" } | Select-Object -First 1
+  if ($containerInspectResult) {
+    docker cp "entrypoint.sh" "${containerName}:/root/entrypoint.sh"
+
+    # RDPのポート番号の不一致チェック
     $restartReason = "ポート番号が一致しません。現在のコンテナの状態をイメージに保存し、そこからコンテナを再作成します。"
-    foreach ($container in $containerInspectResults) {
-      if ($container.Name -ne "/$containerName") {
+    foreach ($portBinding in $containerInspectResult.HostConfig.PortBindings) {
+      $hostIpPort = $portBinding."3389/tcp"
+      if (-not($hostIpPort)) {
         continue
       }
-      foreach ($portBinding in $container.HostConfig.PortBindings) {
-        $hostIpPort = $portBinding."3389/tcp"
-        if (-not($hostIpPort)) {
-          continue
-        }
-        if ($hostIpPort.HostPort -eq $rdpPort.ToString()) {
-          $restartReason = $null
-          break
-        }
+      if ($hostIpPort.HostPort -eq $rdpPort.ToString()) {
+        $restartReason = $null
+        break
       }
-      break;
     }
 
-    if (-not ($restartReason) -and -not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
-      $restartReason = "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。Dockerコンテナを再起動します。"
+    if (-not ($restartReason) -and -not ($containerInspectResult.State.Running)) {
+      docker start $containerName
+      if (-not ($?)) {
+        $restartReason = "コンテナの起動に失敗しました。コンテナを再作成します。"
+      }
     }
 
-    docker cp "entrypoint.sh" "${containerName}:/root/entrypoint.sh"
 
     if ($restartReason) {
       Write-Output $restartReason
+      $containerInspectResult = $null
       docker stop $containerName
       docker commit $containerName $tagName
       docker container rm -f $containerName
-      $containerInspectResults = $null
     }
   }
 
-  if (-not ($containerInspectResults)) {
+  if (-not ($containerInspectResult)) {
     $rebuildImage = $True
     $imageInspectResults = docker image inspect $tagName --format json | ConvertFrom-Json
     foreach ($image in $imageInspectResults) {
