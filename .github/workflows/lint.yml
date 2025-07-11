@@ -17,4 +17,4 @@ jobs:
         with:
           fetch-depth: 0 # for super-linter
       - name: Super-Linter
-        run: ./build/tools/super-linter.sh || true # temporary suppress error
+        run: ./build/tools/super-linter.sh
