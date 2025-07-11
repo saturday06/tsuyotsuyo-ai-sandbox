@@ -1,0 +1,9 @@
+{
+  "name": "tsuyotsuyo-ai-sandbox-build",
+  "version": "1.0.0",
+  "private": true,
+  "license": "MIT",
+  "dependencies": {
+    "prettier": "^3.6.2"
+  }
+}
