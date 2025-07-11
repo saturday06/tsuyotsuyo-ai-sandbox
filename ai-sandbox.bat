@@ -360,6 +360,10 @@ function Start-AiSandbox {
       }
     }
 
+    # RDPが動作しているかチェック
+    if (-not ($restartReason) -and -not (Test-NetConnection "127.0.0.1" -Port $rdpPort).TcpTestSucceeded) {
+      $restartReason = "リモートデスクトップのアドレス「127.0.0.1:$rdpPort」に接続できません。コンテナを再起動します。"
+    }
 
     if ($restartReason) {
       Write-Output $restartReason
