@@ -240,8 +240,11 @@ function Start-AiSandbox {
   else {
     $aiSandboxRdpContent = Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Encoding Unicode
   }
-  $aiSandboxRdpContent += "username:s:${userName}`n"
-  $aiSandboxRdpContent += "password 51:b:" + (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
+  $aiSandboxRdpContent += (
+    "username:s:${userName}`r`n" +
+    "password 51:b:" +
+    (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
+  )
   Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
 
   if (-not (Get-Command "docker" -ErrorAction SilentlyContinue)) {
