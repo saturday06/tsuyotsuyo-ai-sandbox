@@ -315,7 +315,7 @@ function Start-AiSandbox {
   else {
     $aiSandboxRdpContent = Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Encoding Unicode
   }
-  $aiSandboxRdpContent += "username:s:${userName}`n"
+  $aiSandboxRdpContent += "username:s:${userName}"
   $aiSandboxRdpContent += "password 51:b:" + (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
   Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
 
