@@ -336,7 +336,8 @@ function Start-AiSandbox {
     docker image rm -f $workingTagName
   }
 
-  $containerInspectResult = docker container inspect $containerName --format json 2>$null | ConvertFrom-Json | Where-Object { $_.Name -eq "/$containerName" } | Select-Object -First 1
+  $containerInspectResultText = docker container inspect $containerName --format json
+  $containerInspectResult = $containerInspectResultText | ConvertFrom-Json | Where-Object { $_.Name -eq "/$containerName" } | Select-Object -First 1
   if ($containerInspectResult) {
     docker cp "entrypoint.sh" "${containerName}:/root/entrypoint.sh"
 
@@ -376,7 +377,8 @@ function Start-AiSandbox {
 
   if (-not ($containerInspectResult)) {
     $rebuildImage = $True
-    $imageInspectResults = docker image inspect $tagName --format json | ConvertFrom-Json
+    $imageInspectResultsText = docker image inspect $tagName --format json
+    $imageInspectResults = $imageInspectResultsText | ConvertFrom-Json
     foreach ($image in $imageInspectResults) {
       if ($image.RepoTags -contains "${tagName}:latest") {
         $rebuildImage = $False
