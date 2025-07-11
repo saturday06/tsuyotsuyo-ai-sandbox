@@ -82,20 +82,16 @@ function Get-HidpiScaleFactor {
   param()
 
   $hidpiScaleFactorPercentage = 100
-  try {
-    $monitorHandle = [TsuyotsuyoAiSandbox.User32Dll]::MonitorFromWindow([IntPtr]::Zero, 1)
-    [void][TsuyotsuyoAiSandbox.ShcoreDll]::GetScaleFactorForMonitor(
-      $monitorHandle,
-      [ref]$hidpiScaleFactorPercentage
-    )
-  }
-  catch [System.DllNotFoundException] {
-  }
+  $monitorHandle = [TsuyotsuyoAiSandbox.User32Dll]::MonitorFromWindow([IntPtr]::Zero, 1)
+  [void][TsuyotsuyoAiSandbox.ShcoreDll]::GetScaleFactorForMonitor(
+    $monitorHandle,
+    [ref]$hidpiScaleFactorPercentage
+  )
   $hidpiScaleFactor = $hidpiScaleFactorPercentage / 100.0
   return $hidpiScaleFactor
 }
 
-function New-Password {
+function Get-Password {
   $lowercase = 'abcdefghijklmnopqrstuvwxyz'.ToCharArray()
   $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.ToCharArray()
   $numbers = '0123456789'.ToCharArray()
@@ -120,6 +116,12 @@ function New-Password {
 }
 
 function Start-AiSandbox {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    "PSAvoidUsingConvertToSecureStringWithPlainText",
+    "",
+    Justification = "RDP接続のためにパスワードをデコード可能な暗号で保存する必要があるため")
+  ]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   param(
     [bool]$Release,
     [bool]$Rebuild,
@@ -202,7 +204,7 @@ function Start-AiSandbox {
   Write-Output "* RDP Configuration Path: ${aiSandboxRdpPath}"
   Write-Output "* RDP Port Number: ${rdpPort}"
 
-  $rdpPassword = New-Password
+  $rdpPassword = Get-Password
 
   if ($Release) {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $False

@@ -159,20 +159,16 @@ function Get-HidpiScaleFactor {
   param()
 
   $hidpiScaleFactorPercentage = 100
-  try {
-    $monitorHandle = [TsuyotsuyoAiSandbox.User32Dll]::MonitorFromWindow([IntPtr]::Zero, 1)
-    [void][TsuyotsuyoAiSandbox.ShcoreDll]::GetScaleFactorForMonitor(
-      $monitorHandle,
-      [ref]$hidpiScaleFactorPercentage
-    )
-  }
-  catch [System.DllNotFoundException] {
-  }
+  $monitorHandle = [TsuyotsuyoAiSandbox.User32Dll]::MonitorFromWindow([IntPtr]::Zero, 1)
+  [void][TsuyotsuyoAiSandbox.ShcoreDll]::GetScaleFactorForMonitor(
+    $monitorHandle,
+    [ref]$hidpiScaleFactorPercentage
+  )
   $hidpiScaleFactor = $hidpiScaleFactorPercentage / 100.0
   return $hidpiScaleFactor
 }
 
-function New-Password {
+function Get-Password {
   $lowercase = 'abcdefghijklmnopqrstuvwxyz'.ToCharArray()
   $uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.ToCharArray()
   $numbers = '0123456789'.ToCharArray()
@@ -197,6 +193,12 @@ function New-Password {
 }
 
 function Start-AiSandbox {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute(
+    "PSAvoidUsingConvertToSecureStringWithPlainText",
+    "",
+    Justification = "RDP接続のためにパスワードをデコード可能な暗号で保存する必要があるため")
+  ]
+  [CmdletBinding(SupportsShouldProcess = $True)]
   param(
     [bool]$Release,
     [bool]$Rebuild,
@@ -279,7 +281,7 @@ function Start-AiSandbox {
   Write-Output "* RDP Configuration Path: ${aiSandboxRdpPath}"
   Write-Output "* RDP Port Number: ${rdpPort}"
 
-  $rdpPassword = New-Password
+  $rdpPassword = Get-Password
 
   if ($Release) {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $False
@@ -457,8 +459,10 @@ Start-AiSandbox -Release $Release -Rebuild $Rebuild -ConfigPath $ConfigPath
 <# ##################################### Dockerfile ########################################
 # SPDX-License-Identifier: MIT
 #
-# サーバーとして動作するわけではないのでHEALTHCHECKは不要
+# サーバーとして動作するわけではないのでHEALTHCHECKは不要。
 # checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
+# ユーザーをrootにする。これは、entrypointでxrdpやdbus-daemonをrootで起動したいため。
+# checkov:skip=CKV_DOCKER_8: "Ensure the last USER is not root"
 
 FROM ubuntu:noble
 ARG hidpi_scale_factor=1
@@ -985,7 +989,11 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   curl --fail --show-error --location --retry 5 --retry-all-errors https://fnm.vercel.app/install | bash
 SETUP_USER_LOCAL_ENVIRONMENT
 
+# ユーザーをrootにする。これは、entrypointでxrdpやdbus-daemonをrootで起動したいため。
+# https://github.com/hadolint/hadolint/wiki/DL3002
+# hadolint ignore=DL3002
 USER root
+
 WORKDIR /root
 COPY --chown=root:root --chmod=755 ./entrypoint.sh /root/entrypoint.sh
 ENTRYPOINT ["/bin/bash", "-lmic", "/root/entrypoint.sh 2>&1 | tee /root/entrypoint.log"]

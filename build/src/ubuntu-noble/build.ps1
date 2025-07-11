@@ -28,5 +28,5 @@ $outputContent += "######################################## ai-sandbox.rdp #####
 $outputContent = $outputContent.Replace("`r`n", "`n").Replace("`n", "`r`n")
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding $false
-$outputPath = Join-Path $PSScriptRoot ".." ".." ".." "ai-sandbox.bat"
+$outputPath = Join-Path -Path $PSScriptRoot -ChildPath ".." -AdditionalChildPath "..","..","ai-sandbox.bat"
 [System.IO.File]::WriteAllBytes($outputPath, $utf8NoBom.GetBytes($outputContent))

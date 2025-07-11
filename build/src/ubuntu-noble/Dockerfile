@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: MIT
 #
-# サーバーとして動作するわけではないのでHEALTHCHECKは不要
+# サーバーとして動作するわけではないのでHEALTHCHECKは不要。
 # checkov:skip=CKV_DOCKER_2: "Ensure that HEALTHCHECK instructions have been added to container images"
+# ユーザーをrootにする。これは、entrypointでxrdpやdbus-daemonをrootで起動したいため。
+# checkov:skip=CKV_DOCKER_8: "Ensure the last USER is not root"
 
 FROM ubuntu:noble
 ARG hidpi_scale_factor=1
@@ -528,7 +530,11 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   curl --fail --show-error --location --retry 5 --retry-all-errors https://fnm.vercel.app/install | bash
 SETUP_USER_LOCAL_ENVIRONMENT
 
+# ユーザーをrootにする。これは、entrypointでxrdpやdbus-daemonをrootで起動したいため。
+# https://github.com/hadolint/hadolint/wiki/DL3002
+# hadolint ignore=DL3002
 USER root
+
 WORKDIR /root
 COPY --chown=root:root --chmod=755 ./entrypoint.sh /root/entrypoint.sh
 ENTRYPOINT ["/bin/bash", "-lmic", "/root/entrypoint.sh 2>&1 | tee /root/entrypoint.log"]
