@@ -248,7 +248,7 @@ RUN <<'INSTALL_XRDP'
   curl --fail --show-error --location --retry 5 --retry-all-errors --output xrdp.tar.gz https://github.com/neutrinolabs/xrdp/releases/download/v0.10.4.1/xrdp-0.10.4.1.tar.gz
   test "$(shasum -a 512256 xrdp.tar.gz)" = "bd3bb42081cbc05dfc85045f4422627d4e1464654bac26e126f4bf1959f7bd05  xrdp.tar.gz"
   mkdir -p xrdp
-  cd xrdp
+  pushd xrdp
   tar -xf ../xrdp.tar.gz --strip-components=1
   ./configure \
     --enable-fuse \
@@ -273,7 +273,7 @@ RUN <<'INSTALL_XORGXRDP'
   curl --fail --show-error --location --retry 5 --retry-all-errors --output xorgxrdp.tar.gz https://github.com/neutrinolabs/xorgxrdp/releases/download/v0.10.4/xorgxrdp-0.10.4.tar.gz
   test "$(shasum -a 512256 xorgxrdp.tar.gz)" = "1d9981d591628c9a068f1a8b5522da04b9f59fa9c631560e6eb18c5fe8002b50  xorgxrdp.tar.gz"
   mkdir -p xorgxrdp
-  cd xorgxrdp
+  pushd xorgxrdp
   tar -xf ../xorgxrdp.tar.gz --strip-components=1
   ./configure --enable-glamor
   make
@@ -285,7 +285,7 @@ RUN <<'INSTALL_PULSEAUDIO_MODULE_XRDP'
   curl --fail --show-error --location --retry 5 --retry-all-errors --output pulseaudio-module-xrdp.tar.gz https://github.com/neutrinolabs/pulseaudio-module-xrdp/archive/refs/tags/v0.8.tar.gz
   test "$(shasum -a 512256 pulseaudio-module-xrdp.tar.gz)" = "416cbf772f8642876f4b175350d443f8a97770bf37cad50c65518991590f970e  pulseaudio-module-xrdp.tar.gz"
   mkdir -p pulseaudio-module-xrdp
-  cd pulseaudio-module-xrdp
+  pushd pulseaudio-module-xrdp
   tar xf ../pulseaudio-module-xrdp.tar.gz --strip-components=1
   ./scripts/install_pulseaudio_sources_apt.sh
   ./bootstrap
