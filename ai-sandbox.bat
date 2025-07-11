@@ -205,6 +205,7 @@ function Start-AiSandbox {
 
   $userName = "developer"
   $baseName = "ubuntu-noble"
+  $hostName = "ai-sandbox"
   $directoryName = (Split-Path -Path $PSScriptRoot -Leaf)
   $scriptPath = $script:MyInvocation.MyCommand.Path
 
@@ -401,10 +402,10 @@ function Start-AiSandbox {
 
     docker run --rm --gpus=all busybox true
     if ($?) {
-      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --gpus=all $tagName
+      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName --gpus=all $tagName
     }
     else {
-      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName $tagName
+      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName $tagName
     }
   }
 
