@@ -255,6 +255,13 @@ function Start-AiSandbox {
     $configUpdated = $True
   }
 
+  $rdpFullscreen = $config["rdp_fullscreen"]
+  if (-not ($rdpFullscreen -is [bool])) {
+    $rdpFullscreen = $False
+    $config["rdp_fullscreen"] = $rdpFullscreen
+    $configUpdated = $True
+  }
+
   if ($configUpdated) {
     Set-Content $ConfigPath (ConvertTo-Json $config)
   }
@@ -443,7 +450,13 @@ function Start-AiSandbox {
   Write-Output "/////////////////////////////////////////////////////////////////"
   Write-Output ""
 
-  mstsc $aiSandboxRdpPath /v:"127.0.0.1:${rdpPort}" /w:$rdpWidth /h:$rdpHeight
+  if ($rdpFullscreen) {
+    mstsc $aiSandboxRdpPath /v:"127.0.0.1:${rdpPort}" /f
+  }
+  else {
+    mstsc $aiSandboxRdpPath /v:"127.0.0.1:${rdpPort}" /w:$rdpWidth /h:$rdpHeight
+  }
+
   if ($?) {
     Write-Output "リモートデスクトップクライアントを起動しました。自動的に接続できます。"
   }
