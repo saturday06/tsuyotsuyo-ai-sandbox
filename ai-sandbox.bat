@@ -710,7 +710,9 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "xserver-xorg-dev=*" \
     "xserver-xorg-input-all=*" \
     "xvfb=*" \
+    "xxd=*" \
     "xz-utils=*" \
+    "zip=*" \
     "zopfli=*" \
     "zsh=*" \
     -y --no-install-recommends
