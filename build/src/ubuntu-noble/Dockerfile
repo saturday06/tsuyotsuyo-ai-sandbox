@@ -557,6 +557,5 @@ SETUP_USER_LOCAL_ENVIRONMENT
 # hadolint ignore=DL3002
 USER root
 
-WORKDIR /root
 COPY --chown=root:root --chmod=755 ./entrypoint.sh /root/entrypoint.sh
 ENTRYPOINT ["/bin/bash", "-lmic", "/root/entrypoint.sh 2>&1 | tee /root/entrypoint.log"]
