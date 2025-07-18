@@ -890,14 +890,22 @@ wallpaperplugin=org.kde.image
 immutability=1
 plugin=org.kde.plasma.showdesktop
 
+[Containments][2][Applets][18]
+immutability=1
+plugin=org.kde.plasma.panelspacer
+
+[Containments][2][Applets][19]
+immutability=1
+plugin=org.kde.plasma.panelspacer
+
 [Containments][2][Applets][3]
 immutability=1
 plugin=org.kde.plasma.kickoff
 
 [Containments][2][Applets][3][Configuration]
 PreloadWeight=100
-popupHeight=514
-popupWidth=641
+popupHeight=606
+popupWidth=765
 
 [Containments][2][Applets][3][Configuration][General]
 favoritesPortedToKAstats=true
@@ -936,11 +944,11 @@ PreloadWeight=55
 SystrayContainmentId=9
 
 [Containments][2][ConfigDialog]
-DialogHeight=84
+DialogHeight=100
 DialogWidth=1800
 
 [Containments][2][General]
-AppletOrder=3;4;5;6;7;8;16
+AppletOrder=19;3;4;5;18;6;7;8;16
 
 [Containments][9]
 activityId=
@@ -971,9 +979,16 @@ plugin=org.kde.plasma.notifications
 immutability=1
 plugin=org.kde.plasma.devicenotifier
 
+[Containments][9][Applets][17]
+immutability=1
+plugin=org.kde.plasma.volume
+
+[Containments][9][Applets][17][Configuration][General]
+migrated=true
+
 [Containments][9][General]
-extraItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardlayout,org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.notifications,org.kde.plasma.devicenotifier
-knownItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardlayout,org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.notifications,org.kde.plasma.devicenotifier
+extraItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardlayout,org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.notifications,org.kde.plasma.devicenotifier,org.kde.plasma.volume
+knownItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plasma.keyboardlayout,org.kde.plasma.mediacontroller,org.kde.plasma.clipboard,org.kde.plasma.notifications,org.kde.plasma.devicenotifier,org.kde.plasma.volume
 
 [ScreenMapping]
 itemsOnDisabledScreens=
@@ -991,6 +1006,10 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kuriikwsfilterrc --group General --key DefaultWebShortcut google
   kwriteconfig5 --file ~/.config/kglobalshortcutsrc --group kwin --key "Walk Through Windows of Current Application" 'none,alt+`,Walk Through Windows of Current Application'
   kwriteconfig5 --file ~/.config/kwalletrc --group Wallet --key Enabled false
+  kwriteconfig5 --file ~/.config/kwinrc --group Compositing --key Enabled false
+  kwriteconfig5 --file ~/.config/kwinrc --group Compositing --key LatencyPolicy Low
+  kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSize Tiny
+  kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
 
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
