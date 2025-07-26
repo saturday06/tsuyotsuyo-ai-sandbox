@@ -333,17 +333,11 @@ RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
 
   cp /usr/share/applications/code.desktop ~/.local/share/applications/code-no-sandbox.desktop
   desktop-file-edit \
-    --set-name="Visual Studio Code (No Sandbox)" \
-    ~/.local/share/applications/code-no-sandbox.desktop
-  desktop-file-edit \
     --set-key=Exec \
     --set-value="/usr/share/code/code --no-sandbox --disable-gpu --disable-dev-shm-usage %F" \
     ~/.local/share/applications/code-no-sandbox.desktop
 
   cp /usr/share/applications/google-chrome.desktop ~/.local/share/applications/google-chrome-no-sandbox.desktop
-  desktop-file-edit \
-    --set-name="Google Chrome (No Sandbox)" \
-    ~/.local/share/applications/google-chrome-no-sandbox.desktop
   desktop-file-edit \
     --set-key=Exec \
     --set-value="/usr/bin/google-chrome-stable --no-sandbox --disable-gpu --disable-dev-shm-usage %U" \
