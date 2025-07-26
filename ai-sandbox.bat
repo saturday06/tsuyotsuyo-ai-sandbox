@@ -775,7 +775,7 @@ INSTALL_PULSEAUDIO_MODULE_XRDP
 
 RUN <<'SETUP_SYSTEM_LOCALE'
   set -eu
-  locale-gen "ja_JP.UTF-8"
+  locale-gen en_US.UTF-8 ja_JP.UTF-8
   cat <<'DEFAULT_LOCALE' >/etc/default/locale
 LANG=ja_JP.UTF-8
 LANGUAGE=ja_JP:ja
@@ -786,7 +786,6 @@ SETUP_SYSTEM_LOCALE
 RUN <<'SETUP_USER'
   set -eu
   userdel -r ubuntu
-  locale-gen en_US.UTF-8 ja_JP.UTF-8
   useradd --create-home --user-group --shell /bin/bash "$user_name"
   echo "${user_name} ALL=(root) NOPASSWD:ALL" | tee "/etc/sudoers.d/${user_name}"
   mkdir -p /workspace
