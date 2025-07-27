@@ -338,13 +338,25 @@ function Start-AiSandbox {
       }
     }
 
+    $dockerRunArgs = @()
+
     docker run --rm --gpus=all busybox true
     if ($?) {
-      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName --gpus=all $tagName
+      $dockerRunArgs += "--gpus=all"
     }
-    else {
-      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName $tagName
-    }
+
+    $dockerRunArgs += @(
+      "--detach"
+      "--publish"
+      "127.0.0.1:${rdpPort}:3389/tcp"
+      "--name"
+      $containerName
+      "--hostname"
+      $hostName
+      $tagName
+    )
+
+    docker run @dockerRunArgs
   }
 
   $rdpReady = $False
