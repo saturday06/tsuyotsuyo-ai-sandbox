@@ -412,13 +412,30 @@ function Start-AiSandbox {
       }
     }
 
+    $sharedWorkspacePath = [System.IO.Path]::ChangeExtension($ConfigPath, ".shared-workspace")
+    New-Item -Path $sharedWorkspacePath -ItemType Directory -Force | Out-Null
+
+    $dockerRunArgs = @()
+
     docker run --rm --gpus=all busybox true
     if ($?) {
-      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName --gpus=all $tagName
+      $dockerRunArgs += "--gpus=all"
     }
-    else {
-      docker run --detach --publish "127.0.0.1:${rdpPort}:3389/tcp" --name $containerName --hostname $hostName $tagName
-    }
+
+    $dockerRunArgs += @(
+      "--detach"
+      "--volume"
+      "${sharedWorkspacePath}:/sharedworkspace"
+      "--publish"
+      "127.0.0.1:${rdpPort}:3389/tcp"
+      "--name"
+      $containerName
+      "--hostname"
+      $hostName
+      $tagName
+    )
+
+    docker run @dockerRunArgs
   }
 
   $rdpReady = $False
@@ -433,6 +450,9 @@ function Start-AiSandbox {
     Write-Error """127.0.0.1:${rdpPort}""に接続できませんでした。"
   }
 
+  # 共有フォルダのパーミッションは不安定になるので、起動時に再設定をする。
+  docker exec --user root $containerName mkdir -p /sharedworkspace
+  docker exec --user root $containerName chown -R "${userName}:${userName}" /sharedworkspace
   # パイプでCRが付与されるので受信側でfromdosコマンドを用いて削除する。PowerShell 2.0だと-NoNewLineオプションは無い。
   "${userName}:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
   if (-not ($?)) {
@@ -784,8 +804,9 @@ RUN <<'SETUP_USER'
   set -eu
   userdel -r ubuntu
   useradd --create-home --user-group --shell /bin/bash "$user_name"
+  mkdir -p /sharedworkspace
+  chown -R "${user_name}:${user_name}" /sharedworkspace
   echo "${user_name} ALL=(root) NOPASSWD:ALL" | tee "/etc/sudoers.d/${user_name}"
-  mkdir -p /workspace
   echo "${user_name}:$(openssl rand -hex 255)" | chpasswd
   xdg_runtime_dir="/run/user/$(id -u "$user_name")"
   mkdir -p "$xdg_runtime_dir"
@@ -798,6 +819,9 @@ WORKDIR "/home/${user_name}"
 
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
+
+  mkdir -p ~/Desktop
+  ln -s /sharedworkspace ~/Desktop/SharedWorkspace
 
   mkdir -p ~/.local/share/applications
 

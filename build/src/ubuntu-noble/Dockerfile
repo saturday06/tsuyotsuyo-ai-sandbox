@@ -313,8 +313,9 @@ RUN <<'SETUP_USER'
   set -eu
   userdel -r ubuntu
   useradd --create-home --user-group --shell /bin/bash "$user_name"
+  mkdir -p /sharedworkspace
+  chown -R "${user_name}:${user_name}" /sharedworkspace
   echo "${user_name} ALL=(root) NOPASSWD:ALL" | tee "/etc/sudoers.d/${user_name}"
-  mkdir -p /workspace
   echo "${user_name}:$(openssl rand -hex 255)" | chpasswd
   xdg_runtime_dir="/run/user/$(id -u "$user_name")"
   mkdir -p "$xdg_runtime_dir"
@@ -327,6 +328,9 @@ WORKDIR "/home/${user_name}"
 
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
+
+  mkdir -p ~/Desktop
+  ln -s /sharedworkspace ~/Desktop/SharedWorkspace
 
   mkdir -p ~/.local/share/applications
 

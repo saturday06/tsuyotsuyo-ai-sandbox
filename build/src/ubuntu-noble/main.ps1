@@ -338,6 +338,9 @@ function Start-AiSandbox {
       }
     }
 
+    $sharedWorkspacePath = [System.IO.Path]::ChangeExtension($ConfigPath, ".shared-workspace")
+    New-Item -Path $sharedWorkspacePath -ItemType Directory -Force | Out-Null
+
     $dockerRunArgs = @()
 
     docker run --rm --gpus=all busybox true
@@ -347,6 +350,8 @@ function Start-AiSandbox {
 
     $dockerRunArgs += @(
       "--detach"
+      "--volume"
+      "${sharedWorkspacePath}:/sharedworkspace"
       "--publish"
       "127.0.0.1:${rdpPort}:3389/tcp"
       "--name"
@@ -371,6 +376,9 @@ function Start-AiSandbox {
     Write-Error """127.0.0.1:${rdpPort}""に接続できませんでした。"
   }
 
+  # 共有フォルダのパーミッションは不安定になるので、起動時に再設定をする。
+  docker exec --user root $containerName mkdir -p /sharedworkspace
+  docker exec --user root $containerName chown -R "${userName}:${userName}" /sharedworkspace
   # パイプでCRが付与されるので受信側でfromdosコマンドを用いて削除する。PowerShell 2.0だと-NoNewLineオプションは無い。
   "${userName}:${rdpPassword}" | docker exec --interactive --user root $containerName /bin/bash -eu -o pipefail -c "fromdos | chpasswd"
   if (-not ($?)) {
