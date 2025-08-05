@@ -9,6 +9,8 @@ FROM ubuntu:noble
 ARG hidpi_scale_factor=1
 ARG user_name=developer
 
+ENV LIBGL_ALWAYS_INDIRECT=1
+
 # https://github.com/hadolint/hadolint/wiki/DL4006
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
