@@ -3,7 +3,7 @@
 # このファイルは、PowerShell 2.0系でも動作するように記述する。
 
 param(
-  [bool]$Release = $False,
+  [bool]$ExtractSources = $False,
   [bool]$Rebuild = $False,
   [bool]$Restart = $False,
   [string]$ConfigPath = (Join-Path $PSScriptRoot ai-sandbox.json)
@@ -124,7 +124,7 @@ function Start-AiSandbox {
   ]
   [CmdletBinding(SupportsShouldProcess = $True)]
   param(
-    [bool]$Release,
+    [bool]$ExtractSources,
     [bool]$Rebuild,
     [bool]$Restart,
     [string]$ConfigPath
@@ -195,7 +195,7 @@ function Start-AiSandbox {
   $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
 
-  if ($Release) {
+  if ($ExtractSources) {
     # RDPクライアントのタイトルに設定ファイル名を表示する
     $aiSandboxRdpPath = Join-Path $PSScriptRoot ([System.IO.Path]::GetFileNameWithoutExtension($ConfigPath) + ".rdp")
   }
@@ -214,7 +214,7 @@ function Start-AiSandbox {
 
   $rdpPassword = Get-Password
 
-  if ($Release) {
+  if ($ExtractSources) {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $False
     $dockerfileMatch = [regex]::Match(
       (Get-Content $scriptPath -Raw -Encoding UTF8),
@@ -426,4 +426,4 @@ function Start-AiSandbox {
   Start-Sleep -Seconds $closeTimeoutSeconds
 }
 
-Start-AiSandbox -Release $Release -Rebuild $Rebuild -Restart $Restart -ConfigPath $ConfigPath
+Start-AiSandbox -ExtractSources $ExtractSources -Rebuild $Rebuild -Restart $Restart -ConfigPath $ConfigPath

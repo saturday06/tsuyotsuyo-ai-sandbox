@@ -54,7 +54,7 @@ set "startup_script=%startup_script% $mainPs1Path = Join-Path $workspacePath mai
 set "startup_script=%startup_script% Set-Content $mainPs1Path $mainPs1Content -Encoding UTF8;                        "
 set "startup_script=%startup_script% Set-Location $workspacePath;                                                    "
 set "startup_script=%startup_script% ( & $mainPs1Path                                                                "
-set "startup_script=%startup_script%   -Release $True                                                                "
+set "startup_script=%startup_script%   -ExtractSources $True                                                                "
 set "startup_script=%startup_script%   -Rebuild ([bool]$env:sandbox_rebuild)                                         "
 set "startup_script=%startup_script%   -Restart ([bool]$env:sandbox_restart)                                         "
 set "startup_script=%startup_script%   -ConfigPath ([System.IO.Path]::ChangeExtension($Env:bat_path, '.json'))       "
@@ -87,7 +87,7 @@ exit /b
 # このファイルは、PowerShell 2.0系でも動作するように記述する。
 
 param(
-  [bool]$Release = $False,
+  [bool]$ExtractSources = $False,
   [bool]$Rebuild = $False,
   [bool]$Restart = $False,
   [string]$ConfigPath = (Join-Path $PSScriptRoot ai-sandbox.json)
@@ -208,7 +208,7 @@ function Start-AiSandbox {
   ]
   [CmdletBinding(SupportsShouldProcess = $True)]
   param(
-    [bool]$Release,
+    [bool]$ExtractSources,
     [bool]$Rebuild,
     [bool]$Restart,
     [string]$ConfigPath
@@ -279,7 +279,7 @@ function Start-AiSandbox {
   $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
 
-  if ($Release) {
+  if ($ExtractSources) {
     # RDPクライアントのタイトルに設定ファイル名を表示する
     $aiSandboxRdpPath = Join-Path $PSScriptRoot ([System.IO.Path]::GetFileNameWithoutExtension($ConfigPath) + ".rdp")
   }
@@ -298,7 +298,7 @@ function Start-AiSandbox {
 
   $rdpPassword = Get-Password
 
-  if ($Release) {
+  if ($ExtractSources) {
     $utf8NoBom = New-Object System.Text.UTF8Encoding $False
     $dockerfileMatch = [regex]::Match(
       (Get-Content $scriptPath -Raw -Encoding UTF8),
@@ -510,7 +510,7 @@ function Start-AiSandbox {
   Start-Sleep -Seconds $closeTimeoutSeconds
 }
 
-Start-AiSandbox -Release $Release -Rebuild $Rebuild -Restart $Restart -ConfigPath $ConfigPath
+Start-AiSandbox -ExtractSources $ExtractSources -Rebuild $Rebuild -Restart $Restart -ConfigPath $ConfigPath
 
 <# ##################################### Dockerfile ########################################
 # SPDX-License-Identifier: MIT
