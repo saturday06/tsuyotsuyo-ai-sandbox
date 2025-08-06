@@ -5,6 +5,7 @@
 param(
   [bool]$Release = $False,
   [bool]$Rebuild = $False,
+  [bool]$Restart = $False,
   [string]$ConfigPath = (Join-Path $PSScriptRoot ai-sandbox.json)
 )
 
@@ -125,6 +126,7 @@ function Start-AiSandbox {
   param(
     [bool]$Release,
     [bool]$Rebuild,
+    [bool]$Restart,
     [string]$ConfigPath
   )
 
@@ -275,16 +277,28 @@ function Start-AiSandbox {
   if ($containerInspectResult) {
     docker cp "entrypoint.sh" "${containerName}:/root/entrypoint.sh"
 
-    # RDPのポート番号の不一致チェック
-    $restartReason = "ポート番号が一致しません。現在のコンテナの状態をイメージに保存し、そこからコンテナを再作成します。"
-    foreach ($portBinding in $containerInspectResult.HostConfig.PortBindings) {
-      $hostIpPort = $portBinding."3389/tcp"
-      if (-not($hostIpPort)) {
-        continue
+    if ($Restart) {
+      $restartReason = "ユーザーにより再起動がリクエストされました。"
+    }
+    else {
+      $restartReason = $null
+    }
+
+    if (-not ($restartReason)) {
+      # RDPのポート番号の不一致チェック
+      $rdpPortMatch = $False
+      foreach ($portBinding in $containerInspectResult.HostConfig.PortBindings) {
+        $hostIpPort = $portBinding."3389/tcp"
+        if (-not($hostIpPort)) {
+          continue
+        }
+        if ($hostIpPort.HostPort -eq $rdpPort.ToString()) {
+          $rdpPortMatch = $True
+          break
+        }
       }
-      if ($hostIpPort.HostPort -eq $rdpPort.ToString()) {
-        $restartReason = $null
-        break
+      if (-not ($rdpPortMatch)) {
+        $restartReason = "ポート番号が一致しません。現在のコンテナの状態をイメージに保存し、そこからコンテナを再作成します。"
       }
     }
 
@@ -412,4 +426,4 @@ function Start-AiSandbox {
   Start-Sleep -Seconds $closeTimeoutSeconds
 }
 
-Start-AiSandbox -Release $Release -Rebuild $Rebuild -ConfigPath $ConfigPath
+Start-AiSandbox -Release $Release -Rebuild $Rebuild -Restart $Restart -ConfigPath $ConfigPath

@@ -14,6 +14,12 @@ echo.
 
 set "bat_path=%~f0"
 
+for %%a in (%*) do (
+  if /i "%%a"=="/Rebuild" set sandbox_rebuild=true
+  if /i "%%a"=="/Restart" set sandbox_restart=true
+)
+
+rem In default pwsh -> powershell or powershell -> pwsh causes module load error
 set PSModulePath=
 
 set "startup_script="
@@ -46,9 +52,13 @@ set "startup_script=%startup_script% $mainPs1Content = $splitBatContent[1];     
 set "startup_script=%startup_script%                                                                                 "
 set "startup_script=%startup_script% $mainPs1Path = Join-Path $workspacePath main.ps1;                               "
 set "startup_script=%startup_script% Set-Content $mainPs1Path $mainPs1Content -Encoding UTF8;                        "
-set "startup_script=%startup_script% $configPath = [System.IO.Path]::ChangeExtension($Env:bat_path, '.json');        "
 set "startup_script=%startup_script% Set-Location $workspacePath;                                                    "
-set "startup_script=%startup_script% & $mainPs1Path -Release $True -ConfigPath $configPath;                          "
+set "startup_script=%startup_script% ( & $mainPs1Path                                                                "
+set "startup_script=%startup_script%   -Release $True                                                                "
+set "startup_script=%startup_script%   -Rebuild ([bool]$env:sandbox_rebuild)                                         "
+set "startup_script=%startup_script%   -Restart ([bool]$env:sandbox_restart)                                         "
+set "startup_script=%startup_script%   -ConfigPath ([System.IO.Path]::ChangeExtension($Env:bat_path, '.json'))       "
+set "startup_script=%startup_script% );                                                                              "
 
 where /q powershell.exe
 if %errorlevel% equ 0 (
