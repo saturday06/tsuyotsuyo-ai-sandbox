@@ -4,6 +4,31 @@
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
 
+set "bat_path=%~f0"
+set "bat_file_name=%~nx0"
+
+:parse_command_line_arguments
+if /i "%~1"=="/Rebuild" set sandbox_rebuild=true
+if /i "%~1"=="/Restart" set sandbox_restart=true
+if /i "%~1"=="/?" set sandbox_help=true
+if /i "%~1"=="/help" set sandbox_help=true
+shift
+if not "%~1"=="" goto :parse_command_line_arguments
+
+if "%sandbox_help%"=="true" (
+  echo.
+  echo.%bat_file_name% [/Rebuild] [/Restart] [/?]
+  echo.
+  echo./Rebuild
+  echo.    Rebuild the sandbox environment.
+  echo./Restart
+  echo.    Restart the sandbox environment.
+  echo./?
+  echo.    Show this help message.
+  echo.
+  exit /b
+)
+
 echo.
 echo //////////////////////////////////////////////////
 echo.
@@ -11,13 +36,6 @@ echo               Tsuyotsuyo AI Sandbox
 echo.
 echo //////////////////////////////////////////////////
 echo.
-
-set "bat_path=%~f0"
-
-for %%a in (%*) do (
-  if /i "%%a"=="/Rebuild" set sandbox_rebuild=true
-  if /i "%%a"=="/Restart" set sandbox_restart=true
-)
 
 rem In default pwsh -> powershell or powershell -> pwsh causes module load error
 set PSModulePath=
