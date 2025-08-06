@@ -8,14 +8,23 @@ set "bat_path=%~f0"
 set "bat_file_name=%~nx0"
 
 :parse_command_line_arguments
-if /i "%~1"=="/Rebuild" set sandbox_rebuild=true
-if /i "%~1"=="/Restart" set sandbox_restart=true
-if /i "%~1"=="/?" set sandbox_help=true
-if /i "%~1"=="/help" set sandbox_help=true
 shift
-if not "%~1"=="" goto :parse_command_line_arguments
+if /i "%~0"=="/Rebuild" (set "sandbox_rebuild=true" & goto :parse_command_line_arguments)
+if /i "%~0"=="/Restart" (set "sandbox_restart=true" & goto :parse_command_line_arguments)
+if /i "%~0"=="/?" (set "sandbox_help=true" & goto :parse_command_line_arguments)
+if /i "%~0"=="/help" (set "sandbox_help=true" & goto :parse_command_line_arguments)
+if not "%~0"=="" (
+  set "sandbox_help=true"
+  set "sandbox_help_pause=true"
+  echo.
+  echo Error: Unknown argument "%~0"
+  echo.
+  echo -----
+)
 
-if "%sandbox_help%"=="true" (
+if "!sandbox_help!"=="true" (
+  echo.
+  echo.Runs a sandbox environment for a "Tsuyotsuyo"-ish developers.
   echo.
   echo.%bat_file_name% [/Rebuild] [/Restart] [/?]
   echo.
@@ -26,6 +35,7 @@ if "%sandbox_help%"=="true" (
   echo./?
   echo.    Show this help message.
   echo.
+  if "!sandbox_help_pause!"=="true" pause
   exit /b
 )
 
