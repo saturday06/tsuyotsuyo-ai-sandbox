@@ -48,7 +48,7 @@ echo.  //////////////////////////////////////////////////
 echo.
 
 rem In default pwsh -> powershell or powershell -> pwsh causes module load error
-set PSModulePath=
+set "PSModulePath="
 
 set "startup_script="
 set "startup_script=%startup_script% $ErrorActionPreference = 'Stop';                                                "
