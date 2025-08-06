@@ -195,23 +195,6 @@ function Start-AiSandbox {
   $dockerfilePath = Join-Path $PSScriptRoot "Dockerfile"
   $entrypointShPath = Join-Path $PSScriptRoot "entrypoint.sh"
 
-  if ($ExtractSources) {
-    # RDPクライアントのタイトルに設定ファイル名を表示する
-    $aiSandboxRdpPath = Join-Path $PSScriptRoot ([System.IO.Path]::GetFileNameWithoutExtension($ConfigPath) + ".rdp")
-  }
-  else {
-    $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox-dev.rdp"
-  }
-
-  Write-Output "* Config Path: ${ConfigPath}"
-  Write-Output "* Docker Image Tag Name: ${tagName}"
-  Write-Output "* Docker Container Name: ${containerName}"
-  Write-Output "* Dockerfile Path: ${dockerfilePath}"
-  Write-Output "* Dockerfile Entrypoint Path: ${entrypointShPath}"
-  Write-Output "* Script Path: ${scriptPath}"
-  Write-Output "* RDP Configuration Path: ${aiSandboxRdpPath}"
-  Write-Output "* RDP Port Number: ${rdpPort}"
-
   $rdpPassword = Get-Password
 
   if ($ExtractSources) {
@@ -244,9 +227,12 @@ function Start-AiSandbox {
       Write-Error "RDP接続設定ファイルの抽出に失敗しました。"
     }
     $aiSandboxRdpContent = $aiSandboxRdpMatch.Groups[1].Value
+    # RDPクライアントのタイトルにRDP設定ファイル名が表示されるようにして複数窓での作業で区別をつけやすくする。
+    $aiSandboxRdpPath = Join-Path $PSScriptRoot ([System.IO.Path]::GetFileNameWithoutExtension($ConfigPath) + ".rdp")
   }
   else {
     $aiSandboxRdpContent = Get-Content (Join-Path $PSScriptRoot "ai-sandbox.rdp") -Encoding Unicode
+    $aiSandboxRdpPath = Join-Path $PSScriptRoot "ai-sandbox-dev.rdp"
   }
   $aiSandboxRdpContent += (
     "username:s:${userName}`r`n" +
@@ -254,6 +240,15 @@ function Start-AiSandbox {
     (ConvertTo-SecureString $rdpPassword -AsPlainText -Force | ConvertFrom-SecureString)
   )
   Set-Content $aiSandboxRdpPath $aiSandboxRdpContent -Encoding Unicode
+
+  Write-Output "* Config Path: ${ConfigPath}"
+  Write-Output "* Docker Image Tag Name: ${tagName}"
+  Write-Output "* Docker Container Name: ${containerName}"
+  Write-Output "* Dockerfile Path: ${dockerfilePath}"
+  Write-Output "* Dockerfile Entrypoint Path: ${entrypointShPath}"
+  Write-Output "* Script Path: ${scriptPath}"
+  Write-Output "* RDP Configuration Path: ${aiSandboxRdpPath}"
+  Write-Output "* RDP Port Number: ${rdpPort}"
 
   if (-not (Get-Command "docker" -ErrorAction SilentlyContinue)) {
     Write-Output "*** dockerコマンドが見つかりませんでした。dockerをインストールしてください。 ***"
