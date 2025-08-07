@@ -865,6 +865,18 @@ WORKDIR "/home/${user_name}"
 RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
   set -eu
 
+  cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
+export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
+export UV_LINK_MODE=copy
+# https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
+export DONT_PROMPT_WSL_INSTALL=true
+export PATH="/usr/local/cuda/bin:$PATH"
+export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+# https://github.com/AppImage/AppImageKit/issues/912#issuecomment-528669441
+export APPIMAGE_EXTRACT_AND_RUN=1
+SHELL_PROFILE_SCRIPT
+  source ~/.profile
+
   mkdir -p ~/Desktop
   ln -s /sharedworkspace ~/Desktop/SharedWorkspace
 
@@ -881,17 +893,6 @@ RUN <<'SETUP_USER_LOCAL_ENVIRONMENT'
     --set-key=Exec \
     --set-value="/usr/bin/google-chrome-stable --no-sandbox --disable-gpu --disable-dev-shm-usage %U" \
     ~/.local/share/applications/google-chrome-no-sandbox.desktop
-
-  cat <<'SHELL_PROFILE_SCRIPT' >>~/.profile
-export BLENDER_VRM_LOGGING_LEVEL_DEBUG=yes
-export UV_LINK_MODE=copy
-# https://github.com/microsoft/vscode/blob/fb769554405bee9be16e21ceb0a496bd29126941/resources/linux/bin/code.sh#L15-L29
-export DONT_PROMPT_WSL_INSTALL=true
-export PATH="/usr/local/cuda/bin:$PATH"
-export XDG_RUNTIME_DIR="/run/user/$(id -u)"
-# https://github.com/AppImage/AppImageKit/issues/912#issuecomment-528669441
-export APPIMAGE_EXTRACT_AND_RUN=1
-SHELL_PROFILE_SCRIPT
 
   mkdir -p ~/.config/mozc/
   cat <<'MOZC_IBUS_CONFIG' >~/.config/mozc/ibus_config.textproto
