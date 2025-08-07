@@ -1,11 +1,21 @@
 @rem SPDX-License-Identifier: MIT
 @echo off
 
+echo.
+echo.///////////////////////////////////////////////////////////////////
+echo.
+echo.                     Tsuyotsuyo AI Sandbox
+echo.
+echo.///////////////////////////////////////////////////////////////////
+echo.
+
 setlocal enabledelayedexpansion
+
 cd /d "%~dp0"
 
 set "bat_path=%~f0"
 set "bat_file_name=%~nx0"
+set "PSModulePath=" & rem In default pwsh -> powershell or powershell -> pwsh causes module load error
 
 :parse_command_line_arguments
 shift
@@ -22,10 +32,9 @@ if not "%~0"=="" (
 )
 
 if "!sandbox_help!"=="true" (
+  echo.-- Runs a sandbox environment for a "Tsuyotsuyo"-ish developers. --
   echo.
-  echo.Runs a sandbox environment for a "Tsuyotsuyo"-ish developers.
-  echo.
-  echo.%bat_file_name% [/Rebuild] [/Restart] [/?]
+  echo.Usage: %bat_file_name% [/Rebuild] [/Restart] [/?]
   echo.
   echo./Rebuild
   echo.    Rebuild the sandbox environment.
@@ -37,17 +46,6 @@ if "!sandbox_help!"=="true" (
   if "!sandbox_help_pause!"=="true" pause
   exit /b
 )
-
-echo.
-echo.  //////////////////////////////////////////////////
-echo.
-echo.                Tsuyotsuyo AI Sandbox
-echo.
-echo.  //////////////////////////////////////////////////
-echo.
-
-rem In default pwsh -> powershell or powershell -> pwsh causes module load error
-set "PSModulePath="
 
 set "startup_script="
 set "startup_script=%startup_script% $ErrorActionPreference = 'Stop';                                                "
