@@ -1,5 +1,6 @@
 @rem SPDX-License-Identifier: MIT
 @echo off
+setlocal enabledelayedexpansion
 
 echo.
 echo.///////////////////////////////////////////////////////////////////
@@ -8,8 +9,6 @@ echo.                     Tsuyotsuyo AI Sandbox
 echo.
 echo.///////////////////////////////////////////////////////////////////
 echo.
-
-setlocal enabledelayedexpansion
 
 cd /d "%~dp0"
 
