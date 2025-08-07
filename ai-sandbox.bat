@@ -12,7 +12,6 @@ shift
 if /i "%~0"=="/Rebuild" (set "sandbox_rebuild=true" & goto :parse_command_line_arguments)
 if /i "%~0"=="/Restart" (set "sandbox_restart=true" & goto :parse_command_line_arguments)
 if /i "%~0"=="/?" (set "sandbox_help=true" & goto :parse_command_line_arguments)
-if /i "%~0"=="/help" (set "sandbox_help=true" & goto :parse_command_line_arguments)
 if not "%~0"=="" (
   set "sandbox_help=true"
   set "sandbox_help_pause=true"
