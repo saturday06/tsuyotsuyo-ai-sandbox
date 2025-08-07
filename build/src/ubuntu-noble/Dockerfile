@@ -340,8 +340,6 @@ export PATH="/usr/local/cuda/bin:$PATH"
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 # https://github.com/AppImage/AppImageKit/issues/912#issuecomment-528669441
 export APPIMAGE_EXTRACT_AND_RUN=1
-# https://blog.mohammed-al-kebsi.space/post/fix-appimage-sandbox-issues-ubuntu-24-04/#2-use-the-system-chrome-sandbox
-export CHROME_DEVEL_SANDBOX=/opt/google/chrome/chrome-sandbox
 SHELL_PROFILE_SCRIPT
   source ~/.profile
 
