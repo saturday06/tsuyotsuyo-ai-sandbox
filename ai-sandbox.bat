@@ -1073,6 +1073,8 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSize Tiny
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
 
+  lookandfeeltool --apply org.kde.breezedark.desktop
+
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
   xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
