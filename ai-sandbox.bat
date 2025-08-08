@@ -1077,6 +1077,8 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kwinrc --group Compositing --key LatencyPolicy Low
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSize Tiny
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
+  kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
+  kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme kwin4_decoration_qml_plastik
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run --auto-servernum firefox --private-window --setDefaultBrowser || true
