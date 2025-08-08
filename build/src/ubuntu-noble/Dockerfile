@@ -522,6 +522,11 @@ knownItems=org.kde.plasma.battery,org.kde.plasma.manage-inputmethod,org.kde.plas
 itemsOnDisabledScreens=
 screenMapping=
 PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
+  xvfb-run --auto-servernum lookandfeeltool --apply org.kde.breezedark.desktop
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
+  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
+  xvfb-run --auto-servernum gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
   kcm_force_font_dpi=$(perl -MPOSIX=floor -le 'print floor(96 * sqrt(shift))' "$hidpi_scale_factor")
   kwriteconfig5 --file ~/.config/kcmfonts --group General --key forceFontDPI "$kcm_force_font_dpi"
@@ -538,12 +543,6 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kwinrc --group Compositing --key LatencyPolicy Low
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSize Tiny
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
-
-  xvfb-run --auto-servernum lookandfeeltool --apply org.kde.breezedark.desktop
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general preload-engines "['mozc-jp', 'xkb:us::eng']"
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general.hotkey triggers "['<Super>space', '<Alt>grave', '<Alt>Kanji', '<Alt>Zenkaku_Hankaku']"
-  xvfb-run --auto-servernum gsettings set org.freedesktop.ibus.general use-system-keyboard-layout false
-  xvfb-run --auto-servernum gsettings set org.gnome.desktop.interface text-scaling-factor "$hidpi_scale_factor"
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run --auto-servernum firefox --private-window --setDefaultBrowser || true
