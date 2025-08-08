@@ -12,25 +12,30 @@ echo.
 
 cd /d "%~dp0"
 
+set "PSModulePath=" & rem In default pwsh to powershell or powershell to pwsh causes module load error
 set "bat_path=%~f0"
 set "bat_file_name=%~nx0"
-set "PSModulePath=" & rem In default pwsh to powershell or powershell to pwsh causes module load error
+set "rebuild_sandbox="
+set "restart_sandbox="
+set "show_help="
+set "pause_after_help="
 
 :parse_command_line_arguments
 shift
-if /i "%~0"=="/Rebuild" (set "sandbox_rebuild=true" & goto :parse_command_line_arguments)
-if /i "%~0"=="/Restart" (set "sandbox_restart=true" & goto :parse_command_line_arguments)
-if /i "%~0"=="/?" (set "sandbox_help=true" & goto :parse_command_line_arguments)
+if /i "%~0"=="/Rebuild" (set "rebuild_sandbox=true" & goto :parse_command_line_arguments)
+if /i "%~0"=="/Restart" (set "restart_sandbox=true" & goto :parse_command_line_arguments)
+if /i "%~0"=="/?" (set "show_help=true" & goto :parse_command_line_arguments)
+
 if not "%~0"=="" (
-  set "sandbox_help=true"
-  set "sandbox_help_pause=true"
+  set "show_help=true"
+  set "pause_after_help=true"
   echo.
   echo Error: Unknown argument "%~0"
   echo.
   echo -----
 )
 
-if "!sandbox_help!"=="true" (
+if "!show_help!"=="true" (
   echo.-- Runs a sandbox environment for a "Tsuyotsuyo"-ish developers. --
   echo.
   echo.Usage: %bat_file_name% [/Rebuild] [/Restart] [/?]
@@ -42,7 +47,7 @@ if "!sandbox_help!"=="true" (
   echo./?
   echo.    Show this help message.
   echo.
-  if "!sandbox_help_pause!"=="true" pause
+  if "!pause_after_help!"=="true" pause
   exit /b
 )
 
@@ -79,8 +84,8 @@ set "startup_script=%startup_script% Set-Content $mainPs1Path $mainPs1Content -E
 set "startup_script=%startup_script% Set-Location $workspacePath;                                                    "
 set "startup_script=%startup_script% & $mainPs1Path                                                                  "
 set "startup_script=%startup_script%   -ExtractSources $True                                                         "
-set "startup_script=%startup_script%   -Rebuild ([bool]$env:sandbox_rebuild)                                         "
-set "startup_script=%startup_script%   -Restart ([bool]$env:sandbox_restart)                                         "
+set "startup_script=%startup_script%   -Rebuild ([bool]$env:rebuild_sandbox)                                         "
+set "startup_script=%startup_script%   -Restart ([bool]$env:restart_sandbox)                                         "
 set "startup_script=%startup_script%   -ConfigPath ([System.IO.Path]::ChangeExtension($Env:bat_path, '.json'))       "
 set "startup_script=%startup_script% ;                                                                               "
 
