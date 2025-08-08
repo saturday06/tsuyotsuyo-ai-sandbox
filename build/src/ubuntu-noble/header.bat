@@ -14,7 +14,7 @@ cd /d "%~dp0"
 
 set "bat_path=%~f0"
 set "bat_file_name=%~nx0"
-set "PSModulePath=" & rem In default pwsh -> powershell or powershell -> pwsh causes module load error
+set "PSModulePath=" & rem In default pwsh to powershell or powershell to pwsh causes module load error
 
 :parse_command_line_arguments
 shift
