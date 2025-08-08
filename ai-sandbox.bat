@@ -77,12 +77,12 @@ set "startup_script=%startup_script%                                            
 set "startup_script=%startup_script% $mainPs1Path = Join-Path $workspacePath main.ps1;                               "
 set "startup_script=%startup_script% Set-Content $mainPs1Path $mainPs1Content -Encoding UTF8;                        "
 set "startup_script=%startup_script% Set-Location $workspacePath;                                                    "
-set "startup_script=%startup_script% ( & $mainPs1Path                                                                "
+set "startup_script=%startup_script% & $mainPs1Path                                                                  "
 set "startup_script=%startup_script%   -ExtractSources $True                                                         "
 set "startup_script=%startup_script%   -Rebuild ([bool]$env:sandbox_rebuild)                                         "
 set "startup_script=%startup_script%   -Restart ([bool]$env:sandbox_restart)                                         "
 set "startup_script=%startup_script%   -ConfigPath ([System.IO.Path]::ChangeExtension($Env:bat_path, '.json'))       "
-set "startup_script=%startup_script% );                                                                              "
+set "startup_script=%startup_script% ;                                                                               "
 
 where /q powershell.exe
 if %errorlevel% equ 0 (
