@@ -128,6 +128,7 @@ RUN <<'INSTALL_OFFICIAL_PACKAGES'
     "build-essential=*" \
     "check=*" \
     "cmake=*" \
+    "cpio=*" \
     "curl=*" \
     "dbus-x11=*" \
     "dbus=*" \
@@ -340,6 +341,8 @@ export PATH="/usr/local/cuda/bin:$PATH"
 export XDG_RUNTIME_DIR="/run/user/$(id -u)"
 # https://github.com/AppImage/AppImageKit/issues/912#issuecomment-528669441
 export APPIMAGE_EXTRACT_AND_RUN=1
+# https://github.com/dotnet/core/issues/2186#issuecomment-671105420
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
 SHELL_PROFILE_SCRIPT
   source ~/.profile
 
