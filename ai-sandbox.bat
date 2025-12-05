@@ -1084,6 +1084,12 @@ PLASMA_ORG_KDE_PLASMA_DESKTOP_APPLETSRC
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key BorderSizeAuto false
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key library org.kde.kwin.aurorae
   kwriteconfig5 --file ~/.config/kwinrc --group org.kde.kdecoration2 --key theme kwin4_decoration_qml_plastik
+  kwriteconfig5 --file ~/.config/kdeglobals --group General --key font "Noto Sans CJK JP,10,-1,5,50,0,0,0,0,0"
+  kwriteconfig5 --file ~/.config/kdeglobals --group General --key fixed "IPAゴシック,10,-1,5,50,0,0,0,0,0"
+  kwriteconfig5 --file ~/.config/kdeglobals --group General --key menuFont "Noto Sans CJK JP,10,-1,5,50,0,0,0,0,0"
+  kwriteconfig5 --file ~/.config/kdeglobals --group General --key smallestReadableFont "Noto Sans CJK JP,8,-1,5,50,0,0,0,0,0"
+  kwriteconfig5 --file ~/.config/kdeglobals --group General --key toolBarFont "Noto Sans CJK JP,10,-1,5,50,0,0,0,0,0"
+  kwriteconfig5 --file ~/.config/kdeglobals --group WM --key activeFont "Noto Sans CJK JP,10,-1,5,50,0,0,0,0,0"
 
   xdg-settings set default-web-browser firefox-esr.desktop || true
   timeout --signal=HUP 2 xvfb-run --auto-servernum firefox --private-window --setDefaultBrowser || true
