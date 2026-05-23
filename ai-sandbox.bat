@@ -650,7 +650,7 @@ RUN <<'INSTALL_CUDA_TOOLKIT'
   DEBIAN_FRONTEND=noninteractive apt-get install ./cuda-keyring.deb -y --no-install-recommends
   rm cuda-keyring.deb
   apt-get update
-  DEBIAN_FRONTEND=noninteractive apt-get install "cuda-toolkit-12-9=*" -y --no-install-recommends
+  DEBIAN_FRONTEND=noninteractive apt-get install "cuda-toolkit-13-2=*" -y --no-install-recommends
   apt-get dist-clean
   rm -rf /var/lib/apt/lists/*
 INSTALL_CUDA_TOOLKIT
